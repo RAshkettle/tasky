@@ -1,15 +1,7 @@
-import { Apple, CheckCircle, Github, Mail } from "lucide-react";
+import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+import { CheckCircle } from "lucide-react";
 import Link from "next/link";
 import { ModeToggle } from "./mode-toggle";
-import { Button } from "./ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "./ui/dialog";
 
 export default function Header() {
   return (
@@ -43,42 +35,12 @@ export default function Header() {
         </nav>
         <div className="flex items-center gap-4">
           <ModeToggle />
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button>Login</Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
-              <DialogHeader>
-                <DialogTitle>Login to your account</DialogTitle>
-                <DialogDescription>
-                  Choose one of the following methods to login to your account.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="flex flex-col gap-4 py-4">
-                <Button
-                  variant="outline"
-                  className="flex items-center gap-2 justify-start"
-                >
-                  <Github className="h-4 w-4" />
-                  <span>Continue with GitHub</span>
-                </Button>
-                <Button
-                  variant="outline"
-                  className="flex items-center gap-2 justify-start"
-                >
-                  <Mail className="h-4 w-4" />
-                  <span>Continue with Google</span>
-                </Button>
-                <Button
-                  variant="outline"
-                  className="flex items-center gap-2 justify-start"
-                >
-                  <Apple className="h-4 w-4" />
-                  <span>Continue with Apple</span>
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+          <SignedOut>
+            <SignInButton />
+          </SignedOut>
+          <SignedIn>
+            <UserButton />
+          </SignedIn>
         </div>
       </div>
     </header>
