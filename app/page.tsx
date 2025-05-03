@@ -1,5 +1,4 @@
 import Footer from "@/components/footer";
-import Header from "@/components/header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { BarChart3, CheckCircle, FileText, ListTodo } from "lucide-react";
@@ -7,7 +6,6 @@ import { BarChart3, CheckCircle, FileText, ListTodo } from "lucide-react";
 export default function Home() {
   return (
     <div className="flex min-h-screen flex-col">
-      <Header />
       <main className="flex-1">
         <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48 bg-muted">
           <div className="container px-4 md:px-6">
@@ -15,11 +13,11 @@ export default function Home() {
               <div className="flex flex-col justify-center space-y-4">
                 <div className="space-y-2">
                   <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
-                    Plan smarter, achieve more
+                    Put your ideas down in one place
                   </h1>
                   <p className="max-w-[600px] text-muted-foreground md:text-xl">
-                    The all-in-one planning solution to organize your tasks,
-                    track progress, and visualize your success.
+                    Stop hunting for where you put that note when the clock is
+                    ticking.
                   </p>
                 </div>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
@@ -45,8 +43,7 @@ export default function Home() {
                   All your planning needs in one place
                 </h2>
                 <p className="max-w-[900px] text-muted-foreground md:text-xl">
-                  PlanIt brings together everything you need to stay organized
-                  and productive.
+                  Tasky
                 </p>
               </div>
             </div>

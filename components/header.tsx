@@ -17,13 +17,21 @@ export default function Header() {
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-2">
           <CheckCircle className="h-6 w-6 text-primary" />
-          <span className="text-xl font-bold">Tasky</span>
+          <Link href="/" className="text-xl font-bold">
+            Tasky
+          </Link>
         </div>
         <nav className="hidden md:flex gap-6">
-          <Link href="#" className="text-sm font-medium hover:text-primary">
+          <Link
+            href="/tasks"
+            className="text-sm font-medium hover:text-primary"
+          >
             Tasks
           </Link>
-          <Link href="#" className="text-sm font-medium hover:text-primary">
+          <Link
+            href="/notes"
+            className="text-sm font-medium hover:text-primary"
+          >
             Notes
           </Link>
           <Link href="#" className="text-sm font-medium hover:text-primary">
