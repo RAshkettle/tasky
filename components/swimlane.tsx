@@ -14,6 +14,8 @@ interface SwimlaneProps {
     toIndex?: number
   ) => void;
   onReorderTask: (laneId: Lane, fromIndex: number, toIndex: number) => void;
+  onUpdateTask?: (taskId: string, updatedTaskData: Partial<Task>) => void;
+  onDeleteTask?: (taskId: string) => void;
 }
 
 export default function Swimlane({
@@ -21,6 +23,8 @@ export default function Swimlane({
   tasks,
   onMoveTask,
   onReorderTask,
+  onUpdateTask,
+  onDeleteTask,
 }: SwimlaneProps) {
   const [{ isOver }, drop] = useDrop({
     accept: "task",
@@ -83,6 +87,8 @@ export default function Swimlane({
             laneId={laneId}
             onMoveTask={onMoveTask}
             onReorderTask={onReorderTask}
+            onUpdateTask={onUpdateTask}
+            onDeleteTask={onDeleteTask}
           />
         ))}
       </div>

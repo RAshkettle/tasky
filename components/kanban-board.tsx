@@ -12,7 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 
@@ -28,6 +28,14 @@ export type Lane = "TODO" | "IN-PROGRESS" | "PARKED" | "DONE";
 
 export type KanbanData = {
   [key in Lane]: Task[];
+};
+
+// Storage keys for each lane
+const STORAGE_KEYS = {
+  TODO: "kanban-lane-todo",
+  "IN-PROGRESS": "kanban-lane-in-progress",
+  PARKED: "kanban-lane-parked",
+  DONE: "kanban-lane-done",
 };
 
 const initialData: KanbanData = {
@@ -48,19 +56,51 @@ export default function KanbanBoard() {
     category: "other",
   });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  // Load tasks from localStorage on component mount
+  // Load each swimlane from localStorage on initial render
   useEffect(() => {
-    const savedTasks = localStorage.getItem("kanbanTasks");
-    if (savedTasks) {
-      setTasks(JSON.parse(savedTasks));
+    const loadedData: KanbanData = { ...initialData };
+    let hasData = false;
+
+    // Load data for each lane from its dedicated storage key
+    laneOrder.forEach((lane) => {
+      try {
+        const savedLane = localStorage.getItem(STORAGE_KEYS[lane]);
+        if (savedLane) {
+          loadedData[lane] = JSON.parse(savedLane);
+          hasData = true;
+        }
+      } catch (error) {
+        console.error(`Failed to load ${lane} lane data:`, error);
+      }
+    });
+
+    if (hasData) {
+      setTasks(loadedData);
+    }
+
+    setIsLoaded(true);
+  }, []);
+
+  // Save a specific lane to localStorage
+  const saveLane = useCallback((lane: Lane, laneData: Task[]) => {
+    try {
+      localStorage.setItem(STORAGE_KEYS[lane], JSON.stringify(laneData));
+    } catch (error) {
+      console.error(`Failed to save ${lane} lane data:`, error);
     }
   }, []);
 
-  // Save tasks to localStorage whenever they change
+  // When tasks change, save the specific lanes that changed
   useEffect(() => {
-    localStorage.setItem("kanbanTasks", JSON.stringify(tasks));
-  }, [tasks]);
+    if (!isLoaded) return;
+
+    // Save each lane individually
+    laneOrder.forEach((lane) => {
+      saveLane(lane, tasks[lane]);
+    });
+  }, [tasks, isLoaded, saveLane]);
 
   const moveTask = (
     taskId: string,
@@ -87,6 +127,10 @@ export default function KanbanBoard() {
         newTasks[toLane].push(movedTask);
       }
 
+      // Save both affected lanes immediately
+      saveLane(fromLane, newTasks[fromLane]);
+      saveLane(toLane, newTasks[toLane]);
+
       return newTasks;
     });
   };
@@ -98,6 +142,10 @@ export default function KanbanBoard() {
       const [movedTask] = lane.splice(fromIndex, 1);
       lane.splice(toIndex, 0, movedTask);
       newTasks[laneId] = lane;
+
+      // Save the affected lane immediately
+      saveLane(laneId, newTasks[laneId]);
+
       return newTasks;
     });
   };
@@ -109,10 +157,17 @@ export default function KanbanBoard() {
       ...newTask,
     };
 
-    setTasks((prev) => ({
-      ...prev,
-      TODO: [...prev["TODO"], task],
-    }));
+    setTasks((prev) => {
+      const newTasks = {
+        ...prev,
+        TODO: [...prev["TODO"], task],
+      };
+
+      // Save the affected lane immediately
+      saveLane("TODO", newTasks["TODO"]);
+
+      return newTasks;
+    });
 
     setNewTask({
       title: "",
@@ -122,6 +177,61 @@ export default function KanbanBoard() {
     });
 
     setIsDialogOpen(false);
+  };
+
+  // Function to update a task in any lane
+  const updateTask = (taskId: string, updatedTaskData: Partial<Task>) => {
+    setTasks((prev) => {
+      const newTasks = { ...prev };
+
+      // Find which lane contains the task
+      for (const lane of laneOrder) {
+        const taskIndex = newTasks[lane].findIndex(
+          (task) => task.id === taskId
+        );
+
+        if (taskIndex >= 0) {
+          // Update the task
+          newTasks[lane][taskIndex] = {
+            ...newTasks[lane][taskIndex],
+            ...updatedTaskData,
+          };
+
+          // Save the affected lane immediately
+          saveLane(lane, newTasks[lane]);
+
+          break;
+        }
+      }
+
+      return newTasks;
+    });
+  };
+
+  // Function to delete a task from any lane
+  const deleteTask = (taskId: string) => {
+    setTasks((prev) => {
+      const newTasks = { ...prev };
+
+      // Find which lane contains the task
+      for (const lane of laneOrder) {
+        const taskIndex = newTasks[lane].findIndex(
+          (task) => task.id === taskId
+        );
+
+        if (taskIndex >= 0) {
+          // Remove the task
+          newTasks[lane].splice(taskIndex, 1);
+
+          // Save the affected lane immediately
+          saveLane(lane, newTasks[lane]);
+
+          break;
+        }
+      }
+
+      return newTasks;
+    });
   };
 
   return (
@@ -220,6 +330,8 @@ export default function KanbanBoard() {
             tasks={tasks[laneId]}
             onMoveTask={moveTask}
             onReorderTask={reorderTask}
+            onUpdateTask={updateTask}
+            onDeleteTask={deleteTask}
           />
         ))}
       </div>
