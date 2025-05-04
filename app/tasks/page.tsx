@@ -146,10 +146,35 @@ export default function StickyNotesApp() {
 
   return (
     <div
-      className="min-h-screen bg-muted p-4 relative overflow-hidden"
+      className="min-h-screen relative overflow-hidden"
+      style={{
+        background: "linear-gradient(to top, #000000, #4a00a0)",
+        backgroundSize: "cover",
+        backgroundAttachment: "fixed",
+      }}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
     >
+      {/* Stars effect */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {Array.from({ length: 100 }).map((_, i) => (
+          <div
+            key={`star-${i}`}
+            className="absolute rounded-full bg-white"
+            style={{
+              width: `${Math.random() * 2 + 1}px`,
+              height: `${Math.random() * 2 + 1}px`,
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              opacity: Math.random() * 0.7 + 0.3,
+              animation: `twinkle ${
+                Math.random() * 5 + 3
+              }s infinite ease-in-out`,
+            }}
+          />
+        ))}
+      </div>
+
       <Button
         onClick={addNote}
         className="fixed bottom-6 right-6 rounded-full w-14 h-14 shadow-lg z-50"
