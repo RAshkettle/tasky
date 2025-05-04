@@ -38,11 +38,11 @@ export default function StickyNotesApp() {
   }, [notes]);
 
   const colors = [
-    "bg-yellow-200 border-yellow-400",
-    "bg-green-200 border-green-400",
-    "bg-blue-200 border-blue-400",
-    "bg-pink-200 border-pink-400",
-    "bg-purple-200 border-purple-400",
+    "bg-yellow-200/50 border-yellow-400 from-yellow-300/70 to-yellow-200/70",
+    "bg-green-200/50 border-green-400 from-green-300/70 to-green-200/70",
+    "bg-blue-200/50 border-blue-400 from-blue-300/70 to-blue-200/70",
+    "bg-pink-200/50 border-pink-400 from-pink-300/70 to-pink-200/70",
+    "bg-purple-200/50 border-purple-400 from-purple-300/70 to-purple-200/70",
   ];
 
   const addNote = () => {
@@ -66,18 +66,7 @@ export default function StickyNotesApp() {
   };
 
   const handleMouseDown = (e: React.MouseEvent, noteId: string) => {
-    // Prevent starting drag when clicking on textarea or delete button
-    if (
-      (e.target as HTMLElement).tagName === "TEXTAREA" ||
-      (e.target as HTMLElement).closest("button")
-    ) {
-      return;
-    }
-
-    const note = notes.find((n) => n.id === noteId);
-    if (!note) return;
-
-    // Calculate the offset from the mouse position to the note's top-left corner
+    // Only allow dragging from the header
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
     setDragOffset({
       x: e.clientX - rect.left,
@@ -183,49 +172,67 @@ export default function StickyNotesApp() {
       </Button>
 
       {notes.map((note) => {
-        const [colorClass, borderClass] = note.color.split(" ");
-
+        const [colorClass, borderClass, gradientFrom, gradientTo] =
+          note.color.split(" ");
         return (
           <div
             key={note.id}
-            className={`absolute shadow-md rounded-md p-3 ${colorClass} border-2 ${borderClass} w-64 text-purple-900`}
+            className={`absolute shadow-md rounded-md ${colorClass} border-2 ${borderClass} w-64 text-purple-950 overflow-hidden`}
             style={{
               left: `${note.left}px`,
               top: `${note.top}px`,
               zIndex:
                 draggedNote === note.id || activeNote === note.id ? 10 : 1,
-              cursor: draggedNote === note.id ? "grabbing" : "grab",
             }}
-            onMouseDown={(e) => handleMouseDown(e, note.id)}
             onClick={() => setActiveNote(note.id)}
           >
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute top-1 right-1 h-6 w-6 rounded-full opacity-70 text-purple-900 hover:opacity-100 hover:bg-red-300"
-              onClick={(e) => {
-                e.stopPropagation();
-                deleteNote(note.id);
-              }}
+            {/* Grabbable header */}
+            <div
+              className={`h-7 w-full bg-gradient-to-r ${gradientFrom} ${gradientTo} flex items-center cursor-grab`}
+              onMouseDown={(e) => handleMouseDown(e, note.id)}
             >
-              <X className="h-4 w-4" />
-            </Button>
+              <div className="w-full h-full px-2">
+                <div className="flex justify-between items-center h-full">
+                  <div className="flex space-x-1">
+                    {[...Array(3)].map((_, i) => (
+                      <div
+                        key={i}
+                        className="w-2 h-2 rounded-full bg-white/60"
+                      />
+                    ))}
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-5 w-5 rounded-full opacity-70 text-purple-950 hover:opacity-100 hover:bg-red-300"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteNote(note.id);
+                    }}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                </div>
+              </div>
+            </div>
 
             {activeNote === note.id ? (
-              <textarea
-                className="w-full h-32 bg-transparent resize-none focus:outline-none  text-purple-900"
-                value={note.text}
-                onChange={(e) => updateNoteText(note.id, e.target.value)}
-                onBlur={() => setActiveNote(null)}
-                onKeyDown={(e) => {
-                  if (e.key === "Escape") {
-                    setActiveNote(null);
-                  }
-                }}
-                autoFocus
-              />
+              <div className="p-3">
+                <textarea
+                  className="w-full h-32 bg-transparent resize-none focus:outline-none text-purple-950"
+                  value={note.text}
+                  onChange={(e) => updateNoteText(note.id, e.target.value)}
+                  onBlur={() => setActiveNote(null)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape") {
+                      setActiveNote(null);
+                    }
+                  }}
+                  autoFocus
+                />
+              </div>
             ) : (
-              <div className="whitespace-pre-wrap min-h-[8rem] break-words pt-4  text-purple-900">
+              <div className="whitespace-pre-wrap min-h-[8rem] break-words p-3 text-purple-950">
                 {note.text || "Click to edit"}
               </div>
             )}
