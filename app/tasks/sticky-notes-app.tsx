@@ -4,7 +4,7 @@ import type React from "react";
 
 import { Button } from "@/components/ui/button";
 import { Plus, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 type Note = {
   id: string;
@@ -12,7 +12,23 @@ type Note = {
   left: number;
   top: number;
   color: string;
+  updatedAt?: number;
 };
+
+const STORAGE_KEY = "tasky-sticky-notes"; // More specific storage key
+
+// Check if localStorage is available
+const isStorageAvailable = (() => {
+  try {
+    const testKey = "__test__";
+    localStorage.setItem(testKey, testKey);
+    localStorage.removeItem(testKey);
+    return true;
+  } catch (e) {
+    console.warn("localStorage is not available. Notes will not be saved.");
+    return false;
+  }
+})();
 
 export default function StickyNotesApp() {
   const [notes, setNotes] = useState<Note[]>([]);
@@ -22,20 +38,41 @@ export default function StickyNotesApp() {
 
   // Load notes from localStorage on initial render
   useEffect(() => {
-    const savedNotes = localStorage.getItem("sticky-notes");
-    if (savedNotes) {
-      try {
-        setNotes(JSON.parse(savedNotes));
-      } catch (e) {
-        console.error("Failed to parse saved notes");
+    if (!isStorageAvailable) return;
+
+    try {
+      const savedNotes = localStorage.getItem(STORAGE_KEY);
+      if (savedNotes) {
+        const parsedNotes = JSON.parse(savedNotes);
+        setNotes(parsedNotes);
+        console.log(`Loaded ${parsedNotes.length} notes from storage`);
       }
+    } catch (e) {
+      console.error("Failed to load notes from localStorage:", e);
     }
   }, []);
 
-  // Save notes to localStorage whenever they change
-  useEffect(() => {
-    localStorage.setItem("sticky-notes", JSON.stringify(notes));
+  // Debounced save to localStorage
+  const saveNotesToStorage = useCallback(() => {
+    if (!isStorageAvailable) return;
+
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
+    } catch (e) {
+      console.error("Failed to save notes to localStorage:", e);
+    }
   }, [notes]);
+
+  // Use a debounced effect for saving
+  useEffect(() => {
+    if (notes.length === 0) return;
+
+    const timeoutId = setTimeout(() => {
+      saveNotesToStorage();
+    }, 500); // 500ms debounce
+
+    return () => clearTimeout(timeoutId);
+  }, [notes, saveNotesToStorage]);
 
   const colors = [
     "bg-yellow-200/50 border-yellow-400 from-yellow-300/70 to-yellow-200/70",
@@ -52,13 +89,18 @@ export default function StickyNotesApp() {
       left: Math.random() * (window.innerWidth - 250),
       top: Math.random() * (window.innerHeight - 250),
       color: colors[Math.floor(Math.random() * colors.length)],
+      updatedAt: Date.now(),
     };
     setNotes([...notes, newNote]);
     setActiveNote(newNote.id);
   };
 
   const updateNoteText = (id: string, text: string) => {
-    setNotes(notes.map((note) => (note.id === id ? { ...note, text } : note)));
+    setNotes(
+      notes.map((note) =>
+        note.id === id ? { ...note, text, updatedAt: Date.now() } : note
+      )
+    );
   };
 
   const deleteNote = (id: string) => {
