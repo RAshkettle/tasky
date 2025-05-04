@@ -40,7 +40,7 @@ export default function Home() {
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
                 <h2 className="text-3xl font-bold tracking-tighter md:text-4xl">
-                  All your planning needs in one place
+                  All your game jam planning needs in one place
                 </h2>
                 <p className="max-w-[900px] text-muted-foreground md:text-xl">
                   Tasky
@@ -62,7 +62,7 @@ export default function Home() {
                   <FileText className="h-12 w-12 text-primary" />
                   <h3 className="text-xl font-bold">Notes</h3>
                   <p className="text-muted-foreground">
-                    Capture your ideas and important information in one place.
+                    Capture your ideas and sketches in one place.
                   </p>
                 </div>
               </Card>
@@ -71,8 +71,8 @@ export default function Home() {
                   <CheckCircle className="h-12 w-12 text-primary" />
                   <h3 className="text-xl font-bold">Progress</h3>
                   <p className="text-muted-foreground">
-                    Track your achievements and stay motivated with visual
-                    progress indicators.
+                    Track your progress with tasks on a simple no-frills Kanban
+                    board.
                   </p>
                 </div>
               </Card>
@@ -81,8 +81,7 @@ export default function Home() {
                   <BarChart3 className="h-12 w-12 text-primary" />
                   <h3 className="text-xl font-bold">Graph</h3>
                   <p className="text-muted-foreground">
-                    Visualize your productivity and identify patterns with
-                    detailed graphs.
+                    Create ad-hoc scene graphs for mind-mapping.
                   </p>
                 </div>
               </Card>

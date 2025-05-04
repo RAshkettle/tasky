@@ -16,7 +16,7 @@ export default function Footer() {
           </p>
         </div>
         <div className="grid grid-cols-2 gap-10 md:flex-1 lg:grid-cols-3">
-          <div className="space-y-2">
+          {/* <div className="space-y-2">
             <h4 className="text-sm font-medium">Product</h4>
             <ul className="space-y-2 text-sm">
               <li>
@@ -73,13 +73,13 @@ export default function Footer() {
                 </Link>
               </li>
             </ul>
-          </div>
+          </div> */}
           <div className="space-y-2">
             <h4 className="text-sm font-medium">Legal</h4>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
-                  href="#"
+                  href="/legal/terms"
                   className="text-muted-foreground hover:text-foreground"
                 >
                   Terms
@@ -87,7 +87,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="#"
+                  href="/legal/privacy"
                   className="text-muted-foreground hover:text-foreground"
                 >
                   Privacy
@@ -95,7 +95,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="#"
+                  href="/legal/cookies"
                   className="text-muted-foreground hover:text-foreground"
                 >
                   Cookies
