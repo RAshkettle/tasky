@@ -1,28 +1,34 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { DndProvider } from "react-dnd"
-import { HTML5Backend } from "react-dnd-html5-backend"
-import Swimlane from "@/components/swimlane"
-import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
+import Swimlane from "@/components/swimlane";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { useEffect, useState } from "react";
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
 
 export type Task = {
-  id: string
-  title: string
-  description: string
-  priority: "low" | "medium" | "high"
-  category: "art" | "code" | "design" | "audio" | "other"
-}
+  id: string;
+  title: string;
+  description: string;
+  priority: "low" | "medium" | "high";
+  category: "art" | "code" | "design" | "audio" | "other";
+};
 
-export type Lane = "TODO" | "IN-PROGRESS" | "PARKED" | "DONE"
+export type Lane = "TODO" | "IN-PROGRESS" | "PARKED" | "DONE";
 
 export type KanbanData = {
-  [key in Lane]: Task[]
-}
+  [key in Lane]: Task[];
+};
 
 const initialData: KanbanData = {
   TODO: [
@@ -89,92 +95,99 @@ const initialData: KanbanData = {
       category: "other",
     },
   ],
-}
+};
 
-const laneOrder: Lane[] = ["TODO", "IN-PROGRESS", "PARKED", "DONE"]
+const laneOrder: Lane[] = ["TODO", "IN-PROGRESS", "PARKED", "DONE"];
 
 export default function KanbanBoard() {
-  const [tasks, setTasks] = useState<KanbanData>(initialData)
+  const [tasks, setTasks] = useState<KanbanData>(initialData);
   const [newTask, setNewTask] = useState<Omit<Task, "id">>({
     title: "",
     description: "",
     priority: "medium",
     category: "other",
-  })
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  });
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   // Load tasks from localStorage on component mount
   useEffect(() => {
-    const savedTasks = localStorage.getItem("kanbanTasks")
+    const savedTasks = localStorage.getItem("kanbanTasks");
     if (savedTasks) {
-      setTasks(JSON.parse(savedTasks))
+      setTasks(JSON.parse(savedTasks));
     }
-  }, [])
+  }, []);
 
   // Save tasks to localStorage whenever they change
   useEffect(() => {
-    localStorage.setItem("kanbanTasks", JSON.stringify(tasks))
-  }, [tasks])
+    localStorage.setItem("kanbanTasks", JSON.stringify(tasks));
+  }, [tasks]);
 
-  const moveTask = (taskId: string, fromLane: Lane, toLane: Lane, toIndex?: number) => {
+  const moveTask = (
+    taskId: string,
+    fromLane: Lane,
+    toLane: Lane,
+    toIndex?: number
+  ) => {
     setTasks((prev) => {
-      const newTasks = { ...prev }
+      const newTasks = { ...prev };
 
       // Find the task in the source lane
-      const taskIndex = newTasks[fromLane].findIndex((task) => task.id === taskId)
-      if (taskIndex === -1) return prev
+      const taskIndex = newTasks[fromLane].findIndex(
+        (task) => task.id === taskId
+      );
+      if (taskIndex === -1) return prev;
 
       // Remove the task from the source lane
-      const [movedTask] = newTasks[fromLane].splice(taskIndex, 1)
+      const [movedTask] = newTasks[fromLane].splice(taskIndex, 1);
 
       // Add the task to the destination lane at the specified index or at the end
       if (toIndex !== undefined) {
-        newTasks[toLane].splice(toIndex, 0, movedTask)
+        newTasks[toLane].splice(toIndex, 0, movedTask);
       } else {
-        newTasks[toLane].push(movedTask)
+        newTasks[toLane].push(movedTask);
       }
 
-      return newTasks
-    })
-  }
+      return newTasks;
+    });
+  };
 
   const reorderTask = (laneId: Lane, fromIndex: number, toIndex: number) => {
     setTasks((prev) => {
-      const newTasks = { ...prev }
-      const lane = [...newTasks[laneId]]
-      const [movedTask] = lane.splice(fromIndex, 1)
-      lane.splice(toIndex, 0, movedTask)
-      newTasks[laneId] = lane
-      return newTasks
-    })
-  }
+      const newTasks = { ...prev };
+      const lane = [...newTasks[laneId]];
+      const [movedTask] = lane.splice(fromIndex, 1);
+      lane.splice(toIndex, 0, movedTask);
+      newTasks[laneId] = lane;
+      return newTasks;
+    });
+  };
 
   const handleAddTask = () => {
-    const id = `task-${Date.now()}`
+    const id = `task-${Date.now()}`;
     const task: Task = {
       id,
       ...newTask,
-    }
+    };
 
     setTasks((prev) => ({
       ...prev,
       TODO: [...prev["TODO"], task],
-    }))
+    }));
 
     setNewTask({
       title: "",
       description: "",
       priority: "medium",
       category: "other",
-    })
+    });
 
-    setIsDialogOpen(false)
-  }
+    setIsDialogOpen(false);
+  };
 
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="mb-6 flex justify-between items-center">
-        <h2 className="text-xl font-semibold">Tasks</h2>
+        <h2 className="text-xl font-semibold"></h2>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button>Add New Task</Button>
@@ -189,7 +202,9 @@ export default function KanbanBoard() {
                 <Input
                   id="title"
                   value={newTask.title}
-                  onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
+                  onChange={(e) =>
+                    setNewTask({ ...newTask, title: e.target.value })
+                  }
                   placeholder="Task title"
                 />
               </div>
@@ -198,7 +213,9 @@ export default function KanbanBoard() {
                 <Textarea
                   id="description"
                   value={newTask.description}
-                  onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
+                  onChange={(e) =>
+                    setNewTask({ ...newTask, description: e.target.value })
+                  }
                   placeholder="Task description"
                 />
               </div>
@@ -209,7 +226,12 @@ export default function KanbanBoard() {
                     id="priority"
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                     value={newTask.priority}
-                    onChange={(e) => setNewTask({ ...newTask, priority: e.target.value as "low" | "medium" | "high" })}
+                    onChange={(e) =>
+                      setNewTask({
+                        ...newTask,
+                        priority: e.target.value as "low" | "medium" | "high",
+                      })
+                    }
                   >
                     <option value="low">Low</option>
                     <option value="medium">Medium</option>
@@ -225,7 +247,12 @@ export default function KanbanBoard() {
                     onChange={(e) =>
                       setNewTask({
                         ...newTask,
-                        category: e.target.value as "art" | "code" | "design" | "audio" | "other",
+                        category: e.target.value as
+                          | "art"
+                          | "code"
+                          | "design"
+                          | "audio"
+                          | "other",
                       })
                     }
                   >
@@ -257,5 +284,5 @@ export default function KanbanBoard() {
         ))}
       </div>
     </DndProvider>
-  )
+  );
 }
