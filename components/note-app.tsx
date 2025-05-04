@@ -28,7 +28,6 @@ export function NoteApp(): JSX.Element {
       if (savedNotes) {
         const parsedNotes = JSON.parse(savedNotes);
         setNotes(parsedNotes);
-        console.log(`Loaded ${parsedNotes.length} notes from storage`);
       }
     } catch (error) {
       console.error("Failed to load notes from localStorage:", error);

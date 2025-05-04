@@ -1,7 +1,8 @@
 import Footer from "@/components/footer";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { BarChart3, CheckCircle, FileText, ListTodo } from "lucide-react";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -21,15 +22,20 @@ export default function Home() {
                   </p>
                 </div>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
-                  <Button size="lg">Get Started</Button>
-                  <Button size="lg" variant="outline">
-                    Learn More
-                  </Button>
+                  <Link
+                    href="/learn"
+                    className={buttonVariants({
+                      variant: "default",
+                      size: "lg",
+                    })}
+                  >
+                    Get Started
+                  </Link>
                 </div>
               </div>
               <img
-                src="/placeholder.svg?height=550&width=550"
-                alt="Dashboard Preview"
+                src="/tasky.svg"
+                alt="Tasky Logo"
                 className="mx-auto aspect-video overflow-hidden rounded-xl object-cover sm:w-full lg:order-last"
               />
             </div>

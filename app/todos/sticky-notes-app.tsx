@@ -45,7 +45,6 @@ export default function StickyNotesApp() {
       if (savedNotes) {
         const parsedNotes = JSON.parse(savedNotes);
         setNotes(parsedNotes);
-        console.log(`Loaded ${parsedNotes.length} notes from storage`);
       }
     } catch (e) {
       console.error("Failed to load notes from localStorage:", e);
