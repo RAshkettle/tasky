@@ -34,7 +34,7 @@ export default function Header() {
           <Link href="/progress" className={getLinkClass("/progress")}>
             Progress
           </Link>
-          <Link href="#" className={getLinkClass("/graph")}>
+          <Link href="/graph" className={getLinkClass("/graph")}>
             Graph
           </Link>
         </nav>
