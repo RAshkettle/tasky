@@ -31,70 +31,10 @@ export type KanbanData = {
 };
 
 const initialData: KanbanData = {
-  TODO: [
-    {
-      id: "task-1",
-      title: "Design player character",
-      description: "Create concept art for the main player character",
-      priority: "high",
-      category: "art",
-    },
-    {
-      id: "task-2",
-      title: "Implement basic movement",
-      description: "Code player movement controls",
-      priority: "high",
-      category: "code",
-    },
-    {
-      id: "task-3",
-      title: "Design level 1",
-      description: "Create layout for the first level",
-      priority: "medium",
-      category: "design",
-    },
-  ],
-  "IN-PROGRESS": [
-    {
-      id: "task-4",
-      title: "Create background music",
-      description: "Compose theme music for the main menu",
-      priority: "medium",
-      category: "audio",
-    },
-    {
-      id: "task-5",
-      title: "Implement collision detection",
-      description: "Add collision detection between player and environment",
-      priority: "high",
-      category: "code",
-    },
-  ],
-  PARKED: [
-    {
-      id: "task-6",
-      title: "Multiplayer functionality",
-      description: "On hold until core gameplay is complete",
-      priority: "low",
-      category: "code",
-    },
-  ],
-  DONE: [
-    {
-      id: "task-7",
-      title: "Game concept document",
-      description: "Finalize the game concept and core mechanics",
-      priority: "high",
-      category: "design",
-    },
-    {
-      id: "task-8",
-      title: "Project setup",
-      description: "Initialize project repository and development environment",
-      priority: "high",
-      category: "other",
-    },
-  ],
+  TODO: [],
+  "IN-PROGRESS": [],
+  PARKED: [],
+  DONE: [],
 };
 
 const laneOrder: Lane[] = ["TODO", "IN-PROGRESS", "PARKED", "DONE"];
