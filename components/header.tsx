@@ -1,6 +1,5 @@
 "use client";
 
-import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import { CheckCircle } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -35,18 +34,12 @@ export default function Header() {
           <Link href="/progress" className={getLinkClass("/progress")}>
             Progress
           </Link>
-          <Link href="/graph" className={getLinkClass("/graph")}>
+          <Link href="#" className={getLinkClass("/graph")}>
             Graph
           </Link>
         </nav>
         <div className="flex items-center gap-4">
           <ModeToggle />
-          <SignedOut>
-            <SignInButton />
-          </SignedOut>
-          <SignedIn>
-            <UserButton />
-          </SignedIn>
         </div>
       </div>
     </header>
