@@ -26,7 +26,10 @@ export default function Header() {
           >
             Notes
           </Link>
-          <Link href="#" className="text-sm font-medium hover:text-primary">
+          <Link
+            href="/progress"
+            className="text-sm font-medium hover:text-primary"
+          >
             Progress
           </Link>
           <Link href="#" className="text-sm font-medium hover:text-primary">
