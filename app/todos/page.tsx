@@ -14,7 +14,7 @@ const StickyNotesAppNoSSR = dynamic(() => import("./sticky-notes-app"), {
   loading: () => <LoadingComponent />,
 });
 
-export default function TasksPage() {
+export default function TodosPage() {
   return (
     <Suspense fallback={<LoadingComponent />}>
       <StickyNotesAppNoSSR />

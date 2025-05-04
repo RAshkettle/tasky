@@ -287,3 +287,5 @@ export default function StickyNotesApp() {
     </div>
   );
 }
+
+// This file was moved from `tasks` to `todos`. Updated imports if necessary.

@@ -26,7 +26,7 @@ export default function Header() {
           </Link>
         </div>
         <nav className="hidden md:flex gap-6">
-          <Link href="/tasks" className={getLinkClass("/tasks")}>
+          <Link href="/todos" className={getLinkClass("/todos")}>
             ToDo
           </Link>
           <Link href="/notes" className={getLinkClass("/notes")}>
