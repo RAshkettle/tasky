@@ -27,9 +27,9 @@ export default function Swimlane({ laneId, tasks, onMoveTask, onReorderTask }: S
   const getLaneColor = (lane: Lane) => {
     switch (lane) {
       case "TODO":
-        return "bg-blue-50 border-blue-200 dark:bg-blue-950/30 dark:border-blue-900"
-      case "IN-PROGRESS":
         return "bg-amber-50 border-amber-200 dark:bg-amber-950/30 dark:border-amber-900"
+      case "IN-PROGRESS":
+        return "bg-blue-50 border-blue-200 dark:bg-blue-950/30 dark:border-blue-900"
       case "PARKED":
         return "bg-purple-50 border-purple-200 dark:bg-purple-950/30 dark:border-purple-900"
       case "DONE":
