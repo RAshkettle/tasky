@@ -1,52 +1,52 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useCallback } from "react"
-import { NoteList } from "./note-list"
-import { NoteEditor } from "./note-editor"
-import type { Note } from "@/types/note"
-import { Button } from "@/components/ui/button"
-import { PlusCircle } from "lucide-react"
+import { Button } from "@/components/ui/button";
+import type { Note } from "@/types/note";
+import { PlusCircle } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { NoteEditor } from "./note-editor";
+import { NoteList } from "./note-list";
 
 // Define a consistent storage key
 const NOTES_STORAGE_KEY = "tasky-notes-data";
 
 export function NoteApp() {
-  const [notes, setNotes] = useState<Note[]>([])
-  const [selectedNote, setSelectedNote] = useState<Note | null>(null)
-  const [isEditing, setIsEditing] = useState(false)
-  const [isLoaded, setIsLoaded] = useState(false)
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [selectedNote, setSelectedNote] = useState<Note | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   // Load notes from localStorage on initial render
   useEffect(() => {
     try {
-      const savedNotes = localStorage.getItem(NOTES_STORAGE_KEY)
+      const savedNotes = localStorage.getItem(NOTES_STORAGE_KEY);
       if (savedNotes) {
-        const parsedNotes = JSON.parse(savedNotes)
-        setNotes(parsedNotes)
-        console.log(`Loaded ${parsedNotes.length} notes from storage`)
+        const parsedNotes = JSON.parse(savedNotes);
+        setNotes(parsedNotes);
+        console.log(`Loaded ${parsedNotes.length} notes from storage`);
       }
     } catch (error) {
-      console.error("Failed to load notes from localStorage:", error)
+      console.error("Failed to load notes from localStorage:", error);
     } finally {
-      setIsLoaded(true)
+      setIsLoaded(true);
     }
-  }, [])
+  }, []);
 
   // Memoized save function to avoid unnecessary re-renders
   const saveNotesToStorage = useCallback((notesToSave: Note[]) => {
     try {
-      localStorage.setItem(NOTES_STORAGE_KEY, JSON.stringify(notesToSave))
+      localStorage.setItem(NOTES_STORAGE_KEY, JSON.stringify(notesToSave));
     } catch (error) {
-      console.error("Failed to save notes to localStorage:", error)
+      console.error("Failed to save notes to localStorage:", error);
     }
-  }, [])
+  }, []);
 
   // Save notes to localStorage whenever they change, but only after initial load
   useEffect(() => {
     if (isLoaded) {
-      saveNotesToStorage(notes)
+      saveNotesToStorage(notes);
     }
-  }, [notes, saveNotesToStorage, isLoaded])
+  }, [notes, saveNotesToStorage, isLoaded]);
 
   const createNewNote = () => {
     const newNote: Note = {
@@ -56,45 +56,45 @@ export function NoteApp() {
       drawing: null,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-    }
-    setNotes([newNote, ...notes])
-    setSelectedNote(newNote)
-    setIsEditing(true)
-  }
+    };
+    setNotes([newNote, ...notes]);
+    setSelectedNote(newNote);
+    setIsEditing(true);
+  };
 
   const updateNote = (updatedNote: Note) => {
-    const updatedNotes = notes.map((note) => 
-      note.id === updatedNote.id ? 
-        { ...updatedNote, updatedAt: new Date().toISOString() } : 
-        note
-    )
-    setNotes(updatedNotes)
-    setSelectedNote(updatedNote)
-    setIsEditing(false)
-  }
+    const updatedNotes = notes.map((note) =>
+      note.id === updatedNote.id
+        ? { ...updatedNote, updatedAt: new Date().toISOString() }
+        : note
+    );
+    setNotes(updatedNotes);
+    setSelectedNote(updatedNote);
+    setIsEditing(false);
+  };
 
   const deleteNote = (id: string) => {
     // Remove from state array
-    const updatedNotes = notes.filter((note) => note.id !== id)
-    setNotes(updatedNotes)
-    
+    const updatedNotes = notes.filter((note) => note.id !== id);
+    setNotes(updatedNotes);
+
     // Explicitly update localStorage to ensure deletion is persisted
-    saveNotesToStorage(updatedNotes)
-    
+    saveNotesToStorage(updatedNotes);
+
     if (selectedNote && selectedNote.id === id) {
-      setSelectedNote(null)
-      setIsEditing(false)
+      setSelectedNote(null);
+      setIsEditing(false);
     }
-  }
+  };
 
   const selectNote = (note: Note) => {
-    setSelectedNote(note)
-    setIsEditing(false)
-  }
+    setSelectedNote(note);
+    setIsEditing(false);
+  };
 
   const editNote = () => {
-    setIsEditing(true)
-  }
+    setIsEditing(true);
+  };
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-[calc(100vh-2rem)]">
@@ -106,7 +106,11 @@ export function NoteApp() {
             New
           </Button>
         </div>
-        <NoteList notes={notes} selectedNoteId={selectedNote?.id} onSelectNote={selectNote} />
+        <NoteList
+          notes={notes}
+          selectedNoteId={selectedNote?.id}
+          onSelectNote={selectNote}
+        />
       </div>
       <div className="md:col-span-2 border rounded-lg p-4 h-full overflow-y-auto">
         {selectedNote ? (
@@ -128,5 +132,5 @@ export function NoteApp() {
         )}
       </div>
     </div>
-  )
+  );
 }
