@@ -1,83 +1,85 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useCallback, useRef } from "react"
+import { CustomNode } from "@/components/custom-node";
+import { NodePropertiesPanel } from "@/components/node-properties-panel";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import { useCallback, useRef, useState } from "react";
 import ReactFlow, {
-  ReactFlowProvider,
+  addEdge,
+  applyEdgeChanges,
+  applyNodeChanges,
   Background,
   Controls,
+  Panel,
+  ReactFlowProvider,
   type Connection,
   type Edge,
+  type EdgeChange,
   type Node,
   type NodeChange,
-  type EdgeChange,
-  applyNodeChanges,
-  applyEdgeChanges,
-  addEdge,
-  Panel,
   type NodeTypes,
-} from "reactflow"
-import "reactflow/dist/style.css"
-import { v4 as uuidv4 } from "uuid"
-import { Button } from "@/components/ui/button"
-import { Plus } from "lucide-react"
-import { NodePropertiesPanel } from "@/components/node-properties-panel"
-import { CustomNode } from "@/components/custom-node"
+} from "reactflow";
+import "reactflow/dist/style.css";
+import { v4 as uuidv4 } from "uuid";
 
 // Define node types
 const nodeTypes: NodeTypes = {
   custom: CustomNode,
-}
+};
 
 // Initial nodes and edges
-const initialNodes: Node[] = []
-const initialEdges: Edge[] = []
+const initialNodes: Node[] = [];
+const initialEdges: Edge[] = [];
 
 export default function NodeGraphEditor() {
-  const [nodes, setNodes] = useState<Node[]>(initialNodes)
-  const [edges, setEdges] = useState<Edge[]>(initialEdges)
-  const [selectedNode, setSelectedNode] = useState<Node | null>(null)
-  const reactFlowWrapper = useRef<HTMLDivElement>(null)
+  const [nodes, setNodes] = useState<Node[]>(initialNodes);
+  const [edges, setEdges] = useState<Edge[]>(initialEdges);
+  const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+  const reactFlowWrapper = useRef<HTMLDivElement>(null);
   // Remove this line completely
   // const reactFlowInstance = useReactFlow()
 
   // Handle node changes (position, selection, etc.)
   const onNodesChange = useCallback(
     (changes: NodeChange[]) => {
-      const updatedNodes = applyNodeChanges(changes, nodes)
-      setNodes(updatedNodes)
+      const updatedNodes = applyNodeChanges(changes, nodes);
+      setNodes(updatedNodes);
 
       // Update selected node if it was changed
       if (selectedNode) {
-        const updatedSelectedNode = updatedNodes.find((node) => node.id === selectedNode.id)
+        const updatedSelectedNode = updatedNodes.find(
+          (node) => node.id === selectedNode.id
+        );
         if (updatedSelectedNode) {
-          setSelectedNode(updatedSelectedNode)
+          setSelectedNode(updatedSelectedNode);
         }
       }
     },
-    [nodes, selectedNode],
-  )
+    [nodes, selectedNode]
+  );
 
   // Handle edge changes
   const onEdgesChange = useCallback((changes: EdgeChange[]) => {
-    setEdges((eds) => applyEdgeChanges(changes, eds))
-  }, [])
+    setEdges((eds) => applyEdgeChanges(changes, eds));
+  }, []);
 
   // Handle connecting nodes
   const onConnect = useCallback((connection: Connection) => {
-    setEdges((eds) => addEdge({ ...connection, id: `e-${uuidv4()}` }, eds))
-  }, [])
+    setEdges((eds) => addEdge({ ...connection, id: `e-${uuidv4()}` }, eds));
+  }, []);
 
   // Handle node selection
   const onNodeClick = (_: React.MouseEvent, node: Node) => {
-    setSelectedNode(node)
-  }
+    setSelectedNode(node);
+  };
 
   // Handle background click (deselect)
   const onPaneClick = () => {
-    setSelectedNode(null)
-  }
+    setSelectedNode(null);
+  };
 
   // Add a new node
   const addNode = () => {
@@ -93,9 +95,9 @@ export default function NodeGraphEditor() {
         description: "Node description",
         color: "#6366f1",
       },
-    }
-    setNodes((nds) => [...nds, newNode])
-  }
+    };
+    setNodes((nds) => [...nds, newNode]);
+  };
 
   // Update node properties
   const updateNodeProperties = (id: string, data: any) => {
@@ -108,22 +110,25 @@ export default function NodeGraphEditor() {
               ...node.data,
               ...data,
             },
-          }
+          };
 
           // Update selected node if it's the one being modified
           if (selectedNode && selectedNode.id === id) {
-            setSelectedNode(updatedNode)
+            setSelectedNode(updatedNode);
           }
 
-          return updatedNode
+          return updatedNode;
         }
-        return node
-      }),
-    )
-  }
+        return node;
+      })
+    );
+  };
 
   return (
-    <div className="w-full h-screen bg-background text-foreground" ref={reactFlowWrapper}>
+    <div
+      className="w-full h-screen bg-background text-foreground"
+      ref={reactFlowWrapper}
+    >
       <ReactFlowProvider>
         <ReactFlow
           nodes={nodes}
@@ -139,15 +144,26 @@ export default function NodeGraphEditor() {
         >
           <Background color="#444" gap={16} />
           <Controls className="bg-background border border-border text-foreground" />
-          <Panel position="top-left" className="bg-card p-2 rounded-md border border-border shadow-md">
+          <Panel
+            position="top-left"
+            className="bg-card p-2 rounded-md border border-border shadow-md"
+          >
+            <h2 className="mb-2 text-sm">
+              <i>Work in progress...</i>
+            </h2>
             <Button onClick={addNode} className="flex items-center gap-2">
               <Plus className="h-4 w-4" />
               Add Node
             </Button>
           </Panel>
         </ReactFlow>
-        {selectedNode && <NodePropertiesPanel node={selectedNode} updateNodeProperties={updateNodeProperties} />}
+        {selectedNode && (
+          <NodePropertiesPanel
+            node={selectedNode}
+            updateNodeProperties={updateNodeProperties}
+          />
+        )}
       </ReactFlowProvider>
     </div>
-  )
+  );
 }
