@@ -18,7 +18,7 @@ export default function Header() {
             href="/tasks"
             className="text-sm font-medium hover:text-primary"
           >
-            Tasks
+            ToDo
           </Link>
           <Link
             href="/notes"

@@ -51,9 +51,9 @@ export default function Home() {
               <Card className="p-6">
                 <div className="flex flex-col items-center space-y-2 text-center">
                   <ListTodo className="h-12 w-12 text-primary" />
-                  <h3 className="text-xl font-bold">Tasks</h3>
+                  <h3 className="text-xl font-bold">ToDo</h3>
                   <p className="text-muted-foreground">
-                    Create, organize, and prioritize your tasks with ease.
+                    Create simple todo's to keep as reminders.
                   </p>
                 </div>
               </Card>
