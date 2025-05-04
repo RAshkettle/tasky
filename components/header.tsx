@@ -1,9 +1,21 @@
+"use client";
+
 import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import { CheckCircle } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { ModeToggle } from "./mode-toggle";
 
 export default function Header() {
+  const pathname = usePathname();
+
+  const getLinkClass = (path: string) =>
+    `text-sm font-medium hover:text-primary px-3 py-1 rounded-md transition-colors ${
+      pathname === path
+        ? "bg-primary text-primary-foreground dark:bg-primary dark:text-primary-foreground"
+        : ""
+    }`;
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-sky-100 dark:bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-sky-100/90 dark:supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
@@ -14,25 +26,16 @@ export default function Header() {
           </Link>
         </div>
         <nav className="hidden md:flex gap-6">
-          <Link
-            href="/tasks"
-            className="text-sm font-medium hover:text-primary"
-          >
+          <Link href="/tasks" className={getLinkClass("/tasks")}>
             ToDo
           </Link>
-          <Link
-            href="/notes"
-            className="text-sm font-medium hover:text-primary"
-          >
+          <Link href="/notes" className={getLinkClass("/notes")}>
             Notes
           </Link>
-          <Link
-            href="/progress"
-            className="text-sm font-medium hover:text-primary"
-          >
+          <Link href="/progress" className={getLinkClass("/progress")}>
             Progress
           </Link>
-          <Link href="#" className="text-sm font-medium hover:text-primary">
+          <Link href="#" className={getLinkClass("/graph")}>
             Graph
           </Link>
         </nav>
