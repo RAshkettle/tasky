@@ -33,6 +33,18 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { useDrag, useDrop } from "react-dnd";
 
+/**
+ * Props interface for the TaskCard component.
+ *
+ * @interface TaskCardProps
+ * @property {Task} task - The task data to display in the card
+ * @property {number} index - Position index of this task in its parent lane
+ * @property {Lane} laneId - Identifier of the parent lane containing this task
+ * @property {Function} onMoveTask - Callback for moving a task between lanes
+ * @property {Function} onReorderTask - Callback for reordering tasks within a lane
+ * @property {Function} [onUpdateTask] - Optional callback for updating task properties
+ * @property {Function} [onDeleteTask] - Optional callback for deleting a task
+ */
 interface TaskCardProps {
   task: Task;
   index: number;
@@ -48,6 +60,12 @@ interface TaskCardProps {
   onDeleteTask?: (taskId: string) => void;
 }
 
+/**
+ * TaskCard component for the Kanban Board.
+ *
+ * @param {TaskCardProps} props - Component properties
+ * @returns {JSX.Element} The rendered TaskCard component
+ */
 export default function TaskCard({
   task,
   index,
@@ -56,9 +74,9 @@ export default function TaskCard({
   onReorderTask,
   onUpdateTask,
   onDeleteTask,
-}: TaskCardProps) {
+}: TaskCardProps): JSX.Element {
   const ref = useRef<HTMLDivElement>(null);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState<boolean>(false);
   const [editedTask, setEditedTask] = useState<Partial<Task>>({
     title: task.title,
     description: task.description,
@@ -76,14 +94,14 @@ export default function TaskCard({
     });
   }, [task]);
 
-  const handleUpdateTask = () => {
+  const handleUpdateTask = (): void => {
     if (onUpdateTask && editedTask.title) {
       onUpdateTask(task.id, editedTask);
       setIsEditDialogOpen(false);
     }
   };
 
-  const handleDeleteTask = () => {
+  const handleDeleteTask = (): void => {
     if (onDeleteTask) {
       onDeleteTask(task.id);
     }
@@ -104,7 +122,7 @@ export default function TaskCard({
         handlerId: monitor.getHandlerId(),
       };
     },
-    hover(item: any, monitor) {
+    hover(item: { id: string; laneId: Lane; index: number }, monitor) {
       if (!ref.current) {
         return;
       }
@@ -151,7 +169,7 @@ export default function TaskCard({
 
   drag(drop(ref));
 
-  const getCategoryIcon = (category: string) => {
+  const getCategoryIcon = (category: string): JSX.Element => {
     switch (category) {
       case "art":
         return <PencilIcon className="h-4 w-4 mr-1" />;
@@ -166,7 +184,7 @@ export default function TaskCard({
     }
   };
 
-  const getPriorityColor = (priority: string) => {
+  const getPriorityColor = (priority: string): string => {
     switch (priority) {
       case "high":
         return "bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-800/50";

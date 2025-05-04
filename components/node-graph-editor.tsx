@@ -6,7 +6,7 @@ import { CustomNode } from "@/components/custom-node";
 import { NodePropertiesPanel } from "@/components/node-properties-panel";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import ReactFlow, {
   addEdge,
   applyEdgeChanges,
@@ -34,17 +34,25 @@ const nodeTypes: NodeTypes = {
 const initialNodes: Node[] = [];
 const initialEdges: Edge[] = [];
 
-export default function NodeGraphEditor() {
+// Storage key for persisting graph data
+const STORAGE_KEY = "node-graph-data";
+
+/**
+ * Node Graph Editor component for creating interactive node-based graphs.
+ *
+ * @returns {JSX.Element} The rendered Node Graph Editor component
+ */
+export default function NodeGraphEditor(): JSX.Element {
   const [nodes, setNodes] = useState<Node[]>(initialNodes);
   const [edges, setEdges] = useState<Edge[]>(initialEdges);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
-  // Remove this line completely
-  // const reactFlowInstance = useReactFlow()
+  // Auto-save interval ID
+  const autoSaveInterval = useRef<NodeJS.Timeout | null>(null);
 
   // Handle node changes (position, selection, etc.)
   const onNodesChange = useCallback(
-    (changes: NodeChange[]) => {
+    (changes: NodeChange[]): void => {
       const updatedNodes = applyNodeChanges(changes, nodes);
       setNodes(updatedNodes);
 
@@ -62,27 +70,27 @@ export default function NodeGraphEditor() {
   );
 
   // Handle edge changes
-  const onEdgesChange = useCallback((changes: EdgeChange[]) => {
+  const onEdgesChange = useCallback((changes: EdgeChange[]): void => {
     setEdges((eds) => applyEdgeChanges(changes, eds));
   }, []);
 
   // Handle connecting nodes
-  const onConnect = useCallback((connection: Connection) => {
+  const onConnect = useCallback((connection: Connection): void => {
     setEdges((eds) => addEdge({ ...connection, id: `e-${uuidv4()}` }, eds));
   }, []);
 
   // Handle node selection
-  const onNodeClick = (_: React.MouseEvent, node: Node) => {
+  const onNodeClick = (_: React.MouseEvent, node: Node): void => {
     setSelectedNode(node);
   };
 
   // Handle background click (deselect)
-  const onPaneClick = () => {
+  const onPaneClick = (): void => {
     setSelectedNode(null);
   };
 
   // Add a new node
-  const addNode = () => {
+  const addNode = (): void => {
     const newNode: Node = {
       id: `node-${uuidv4()}`,
       type: "custom",
@@ -100,7 +108,7 @@ export default function NodeGraphEditor() {
   };
 
   // Update node properties
-  const updateNodeProperties = (id: string, data: any) => {
+  const updateNodeProperties = (id: string, data: any): void => {
     setNodes((nds) =>
       nds.map((node) => {
         if (node.id === id) {
@@ -123,6 +131,42 @@ export default function NodeGraphEditor() {
       })
     );
   };
+
+  // Add a save button to manually save the graph data
+  const saveGraph = (): void => {
+    const data = { nodes, edges };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    alert("Graph saved successfully!");
+  };
+
+  // Load graph data from localStorage on initial render or route entry
+  useEffect(() => {
+    const savedData = localStorage.getItem(STORAGE_KEY);
+    if (savedData) {
+      try {
+        const { nodes: savedNodes, edges: savedEdges } = JSON.parse(savedData);
+        setNodes(savedNodes);
+        setEdges(savedEdges);
+      } catch (error) {
+        console.error("Failed to parse graph data from localStorage:", error);
+      }
+    }
+
+    // Start auto-save loop
+    autoSaveInterval.current = setInterval(() => {
+      const data = { nodes, edges };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      console.log("Auto-saved graph data to localStorage");
+    }, 10000);
+
+    return () => {
+      // Clear auto-save interval on route exit
+      if (autoSaveInterval.current) {
+        clearInterval(autoSaveInterval.current);
+        autoSaveInterval.current = null;
+      }
+    };
+  }, []);
 
   return (
     <div
@@ -154,6 +198,12 @@ export default function NodeGraphEditor() {
             <Button onClick={addNode} className="flex items-center gap-2">
               <Plus className="h-4 w-4" />
               Add Node
+            </Button>
+            <Button
+              onClick={saveGraph}
+              className="flex items-center gap-2 mt-2"
+            >
+              Save Graph
             </Button>
           </Panel>
         </ReactFlow>

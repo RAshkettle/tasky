@@ -10,11 +10,16 @@ import { NoteList } from "./note-list";
 // Define a consistent storage key
 const NOTES_STORAGE_KEY = "tasky-notes-data";
 
-export function NoteApp() {
+/**
+ * Main Note App component that manages the notes application state and UI.
+ *
+ * @returns {JSX.Element} The rendered Note App component
+ */
+export function NoteApp(): JSX.Element {
   const [notes, setNotes] = useState<Note[]>([]);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [isLoaded, setIsLoaded] = useState<boolean>(false);
 
   // Load notes from localStorage on initial render
   useEffect(() => {
@@ -33,7 +38,7 @@ export function NoteApp() {
   }, []);
 
   // Memoized save function to avoid unnecessary re-renders
-  const saveNotesToStorage = useCallback((notesToSave: Note[]) => {
+  const saveNotesToStorage = useCallback((notesToSave: Note[]): void => {
     try {
       localStorage.setItem(NOTES_STORAGE_KEY, JSON.stringify(notesToSave));
     } catch (error) {
@@ -48,7 +53,7 @@ export function NoteApp() {
     }
   }, [notes, saveNotesToStorage, isLoaded]);
 
-  const createNewNote = () => {
+  const createNewNote = (): void => {
     const newNote: Note = {
       id: Date.now().toString(),
       title: "Untitled Note",
@@ -62,7 +67,7 @@ export function NoteApp() {
     setIsEditing(true);
   };
 
-  const updateNote = (updatedNote: Note) => {
+  const updateNote = (updatedNote: Note): void => {
     const updatedNotes = notes.map((note) =>
       note.id === updatedNote.id
         ? { ...updatedNote, updatedAt: new Date().toISOString() }
@@ -73,7 +78,7 @@ export function NoteApp() {
     setIsEditing(false);
   };
 
-  const deleteNote = (id: string) => {
+  const deleteNote = (id: string): void => {
     // Remove from state array
     const updatedNotes = notes.filter((note) => note.id !== id);
     setNotes(updatedNotes);
@@ -87,12 +92,12 @@ export function NoteApp() {
     }
   };
 
-  const selectNote = (note: Note) => {
+  const selectNote = (note: Note): void => {
     setSelectedNote(note);
     setIsEditing(false);
   };
 
-  const editNote = () => {
+  const editNote = (): void => {
     setIsEditing(true);
   };
 

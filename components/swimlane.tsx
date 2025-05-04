@@ -4,6 +4,9 @@ import type { Lane, Task } from "@/components/kanban-board";
 import TaskCard from "@/components/task-card";
 import { useDrop } from "react-dnd";
 
+/**
+ * Props interface for the Swimlane component.
+ */
 interface SwimlaneProps {
   laneId: Lane;
   tasks: Task[];
@@ -18,6 +21,12 @@ interface SwimlaneProps {
   onDeleteTask?: (taskId: string) => void;
 }
 
+/**
+ * Swimlane component for the Kanban Board.
+ *
+ * @param {SwimlaneProps} props - Component properties
+ * @returns {JSX.Element} The rendered Swimlane component
+ */
 export default function Swimlane({
   laneId,
   tasks,
@@ -25,10 +34,10 @@ export default function Swimlane({
   onReorderTask,
   onUpdateTask,
   onDeleteTask,
-}: SwimlaneProps) {
+}: SwimlaneProps): JSX.Element {
   const [{ isOver }, drop] = useDrop({
     accept: "task",
-    drop: (item: { id: string; laneId: Lane; index: number }) => {
+    drop: (item: { id: string; laneId: Lane; index: number }): void => {
       if (item.laneId !== laneId) {
         onMoveTask(item.id, item.laneId, laneId);
       }
@@ -38,7 +47,7 @@ export default function Swimlane({
     }),
   });
 
-  const getLaneColor = (lane: Lane) => {
+  const getLaneColor = (lane: Lane): string => {
     switch (lane) {
       case "TODO":
         return "bg-amber-50 border-amber-200 dark:bg-amber-950/30 dark:border-amber-900";
@@ -53,7 +62,7 @@ export default function Swimlane({
     }
   };
 
-  const getLaneTitle = (lane: Lane) => {
+  const getLaneTitle = (lane: Lane): string => {
     switch (lane) {
       case "TODO":
         return "To Do";

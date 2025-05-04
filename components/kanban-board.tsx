@@ -16,6 +16,9 @@ import { useCallback, useEffect, useState } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 
+/**
+ * Task data structure for the kanban board.
+ */
 export type Task = {
   id: string;
   title: string;
@@ -24,14 +27,22 @@ export type Task = {
   category: "art" | "code" | "design" | "audio" | "other";
 };
 
+/**
+ * Lane types for the kanban board.
+ */
 export type Lane = "TODO" | "IN-PROGRESS" | "PARKED" | "DONE";
 
+/**
+ * Structure for organizing tasks by lane.
+ */
 export type KanbanData = {
   [key in Lane]: Task[];
 };
 
-// Storage keys for each lane
-const STORAGE_KEYS = {
+/**
+ * Storage keys for each lane's local storage
+ */
+const STORAGE_KEYS: Record<Lane, string> = {
   TODO: "kanban-lane-todo",
   "IN-PROGRESS": "kanban-lane-in-progress",
   PARKED: "kanban-lane-parked",
@@ -47,7 +58,12 @@ const initialData: KanbanData = {
 
 const laneOrder: Lane[] = ["TODO", "IN-PROGRESS", "PARKED", "DONE"];
 
-export default function KanbanBoard() {
+/**
+ * Kanban Board component for task management.
+ *
+ * @returns {JSX.Element} The rendered Kanban Board component
+ */
+export default function KanbanBoard(): JSX.Element {
   const [tasks, setTasks] = useState<KanbanData>(initialData);
   const [newTask, setNewTask] = useState<Omit<Task, "id">>({
     title: "",
@@ -55,8 +71,8 @@ export default function KanbanBoard() {
     priority: "medium",
     category: "other",
   });
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+  const [isLoaded, setIsLoaded] = useState<boolean>(false);
 
   // Load each swimlane from localStorage on initial render
   useEffect(() => {
@@ -84,7 +100,7 @@ export default function KanbanBoard() {
   }, []);
 
   // Save a specific lane to localStorage
-  const saveLane = useCallback((lane: Lane, laneData: Task[]) => {
+  const saveLane = useCallback((lane: Lane, laneData: Task[]): void => {
     try {
       localStorage.setItem(STORAGE_KEYS[lane], JSON.stringify(laneData));
     } catch (error) {
@@ -107,7 +123,7 @@ export default function KanbanBoard() {
     fromLane: Lane,
     toLane: Lane,
     toIndex?: number
-  ) => {
+  ): void => {
     setTasks((prev) => {
       const newTasks = { ...prev };
 
@@ -135,7 +151,11 @@ export default function KanbanBoard() {
     });
   };
 
-  const reorderTask = (laneId: Lane, fromIndex: number, toIndex: number) => {
+  const reorderTask = (
+    laneId: Lane,
+    fromIndex: number,
+    toIndex: number
+  ): void => {
     setTasks((prev) => {
       const newTasks = { ...prev };
       const lane = [...newTasks[laneId]];
@@ -150,7 +170,7 @@ export default function KanbanBoard() {
     });
   };
 
-  const handleAddTask = () => {
+  const handleAddTask = (): void => {
     const id = `task-${Date.now()}`;
     const task: Task = {
       id,
@@ -180,7 +200,7 @@ export default function KanbanBoard() {
   };
 
   // Function to update a task in any lane
-  const updateTask = (taskId: string, updatedTaskData: Partial<Task>) => {
+  const updateTask = (taskId: string, updatedTaskData: Partial<Task>): void => {
     setTasks((prev) => {
       const newTasks = { ...prev };
 
@@ -209,7 +229,7 @@ export default function KanbanBoard() {
   };
 
   // Function to delete a task from any lane
-  const deleteTask = (taskId: string) => {
+  const deleteTask = (taskId: string): void => {
     setTasks((prev) => {
       const newTasks = { ...prev };
 

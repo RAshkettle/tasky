@@ -1,56 +1,78 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import type { Note } from "@/types/note"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Edit, Trash, Save, FileText, PenTool } from "lucide-react"
-import { formatDistanceToNow } from "date-fns"
-import { DrawingCanvas } from "./drawing-canvas"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
+import type { Note } from "@/types/note";
+import { formatDistanceToNow } from "date-fns";
+import { Edit, FileText, PenTool, Save, Trash } from "lucide-react";
+import { useEffect, useState } from "react";
+import { DrawingCanvas } from "./drawing-canvas";
 
+/**
+ * Props interface for the NoteEditor component.
+ *
+ * @interface NoteEditorProps
+ * @property {Note} note - The note object to display and edit
+ * @property {boolean} isEditing - Whether the editor is in edit mode
+ * @property {Function} onSave - Callback function triggered when a note is saved
+ * @property {Function} onEdit - Callback function triggered when edit mode is activated
+ * @property {Function} onDelete - Callback function triggered when a note is deleted
+ */
 interface NoteEditorProps {
-  note: Note
-  isEditing: boolean
-  onSave: (note: Note) => void
-  onEdit: () => void
-  onDelete: (id: string) => void
+  note: Note;
+  isEditing: boolean;
+  onSave: (note: Note) => void;
+  onEdit: () => void;
+  onDelete: (id: string) => void;
 }
 
-export function NoteEditor({ note, isEditing, onSave, onEdit, onDelete }: NoteEditorProps) {
-  const [title, setTitle] = useState(note.title)
-  const [content, setContent] = useState(note.content)
-  const [drawing, setDrawing] = useState<string | null>(note.drawing)
-  const [activeTab, setActiveTab] = useState<string>("text")
+/**
+ * NoteEditor component for viewing and editing notes.
+ *
+ * @param {NoteEditorProps} props - Component properties
+ * @returns {JSX.Element} The rendered NoteEditor component
+ */
+export function NoteEditor({
+  note,
+  isEditing,
+  onSave,
+  onEdit,
+  onDelete,
+}: NoteEditorProps): JSX.Element {
+  const [title, setTitle] = useState<string>(note.title);
+  const [content, setContent] = useState<string>(note.content);
+  const [drawing, setDrawing] = useState<string | null>(note.drawing);
+  const [activeTab, setActiveTab] = useState<string>("text");
 
   // Update local state when the note changes
   useEffect(() => {
-    setTitle(note.title)
-    setContent(note.content)
-    setDrawing(note.drawing)
-  }, [note])
+    setTitle(note.title);
+    setContent(note.content);
+    setDrawing(note.drawing);
+  }, [note]);
 
-  const handleSave = () => {
+  const handleSave = (): void => {
     const updatedNote: Note = {
       ...note,
       title: title || "Untitled Note",
       content,
       drawing,
       updatedAt: new Date().toISOString(),
-    }
-    onSave(updatedNote)
-  }
+    };
+    onSave(updatedNote);
+  };
 
-  const handleDelete = () => {
+  const handleDelete = (): void => {
     if (confirm("Are you sure you want to delete this note?")) {
-      onDelete(note.id)
+      onDelete(note.id);
     }
-  }
+  };
 
-  const handleDrawingSave = (drawingData: string) => {
-    setDrawing(drawingData)
-  }
+  const handleDrawingSave = (drawingData: string): void => {
+    setDrawing(drawingData);
+  };
 
   if (isEditing) {
     return (
@@ -90,11 +112,14 @@ export function NoteEditor({ note, isEditing, onSave, onEdit, onDelete }: NoteEd
           </TabsContent>
 
           <TabsContent value="drawing" className="mt-4">
-            <DrawingCanvas initialDrawing={drawing} onSave={handleDrawingSave} />
+            <DrawingCanvas
+              initialDrawing={drawing}
+              onSave={handleDrawingSave}
+            />
           </TabsContent>
         </Tabs>
       </div>
-    )
+    );
   }
 
   return (
@@ -118,7 +143,8 @@ export function NoteEditor({ note, isEditing, onSave, onEdit, onDelete }: NoteEd
         </div>
       </div>
       <div className="text-sm text-muted-foreground">
-        Last updated {formatDistanceToNow(new Date(note.updatedAt), { addSuffix: true })}
+        Last updated{" "}
+        {formatDistanceToNow(new Date(note.updatedAt), { addSuffix: true })}
       </div>
 
       <Tabs defaultValue="text" className="w-full">
@@ -146,7 +172,11 @@ export function NoteEditor({ note, isEditing, onSave, onEdit, onDelete }: NoteEd
         <TabsContent value="drawing" className="mt-4">
           {drawing ? (
             <div className="border rounded-md overflow-hidden">
-              <img src={drawing || "/placeholder.svg"} alt="Note drawing" className="w-full" />
+              <img
+                src={drawing || "/placeholder.svg"}
+                alt="Note drawing"
+                className="w-full"
+              />
             </div>
           ) : (
             <p className="text-muted-foreground italic">No drawing</p>
@@ -154,5 +184,5 @@ export function NoteEditor({ note, isEditing, onSave, onEdit, onDelete }: NoteEd
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }
