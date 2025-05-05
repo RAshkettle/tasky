@@ -1,5 +1,15 @@
 "use client";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -12,13 +22,20 @@ import {
 import { Input } from "@/components/ui/input";
 import { Project, useProjects } from "@/contexts/project-context";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle, PlusCircle, RefreshCw } from "lucide-react";
+import { CheckCircle, PlusCircle, RefreshCw, Trash2 } from "lucide-react";
 import { useState } from "react";
 
 export default function ProjectSelector() {
-  const { projects, setProjects, activeProject, setActiveProject, isLoading } =
-    useProjects();
+  const {
+    projects,
+    setProjects,
+    activeProject,
+    setActiveProject,
+    deleteProject,
+    isLoading,
+  } = useProjects();
   const [newProjectName, setNewProjectName] = useState("");
+  const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
   const { toast } = useToast();
 
   // Generate a random project name
@@ -126,6 +143,41 @@ export default function ProjectSelector() {
     });
   };
 
+  // Handle project deletion
+  const handleDeleteProject = (projectId: string) => {
+    const success = deleteProject(projectId);
+
+    if (success) {
+      toast({
+        title: "Project Deleted",
+        description: "The project has been permanently deleted",
+      });
+      setProjectToDelete(null);
+    } else {
+      toast({
+        title: "Cannot Delete",
+        description: "You cannot delete the currently active project",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Handle delete button click - open confirmation dialog
+  const handleDeleteClick = (e: React.MouseEvent, project: Project) => {
+    e.stopPropagation(); // Prevent card click/project selection
+
+    if (project.id === activeProject?.id) {
+      toast({
+        title: "Cannot Delete",
+        description: "You cannot delete the currently active project",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setProjectToDelete(project);
+  };
+
   if (isLoading) {
     return (
       <div className="container mx-auto py-8 px-4 text-center">
@@ -172,9 +224,20 @@ export default function ProjectSelector() {
                           {new Date(project.createdAt).toLocaleDateString()}
                         </div>
                       </div>
-                      {activeProject?.id === project.id && (
-                        <CheckCircle className="h-5 w-5 text-primary" />
-                      )}
+                      <div className="flex items-center space-x-2">
+                        {activeProject?.id === project.id ? (
+                          <CheckCircle className="h-5 w-5 text-primary" />
+                        ) : (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={(e) => handleDeleteClick(e, project)}
+                            title="Delete project"
+                          >
+                            <Trash2 className="h-5 w-5 text-destructive" />
+                          </Button>
+                        )}
+                      </div>
                     </CardContent>
                   </Card>
                 ))}
@@ -222,6 +285,31 @@ export default function ProjectSelector() {
           </CardFooter>
         </Card>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog
+        open={!!projectToDelete}
+        onOpenChange={() => setProjectToDelete(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Project</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete the project{" "}
+              <span className="font-medium">{projectToDelete?.name}</span>? This
+              action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => handleDeleteProject(projectToDelete!.id)}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

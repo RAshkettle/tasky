@@ -14,6 +14,7 @@ interface ProjectContextType {
   activeProject: Project | null;
   setProjects: (projects: Project[]) => void;
   setActiveProject: (project: Project | null) => void;
+  deleteProject: (projectId: string) => void;
   isLoading: boolean;
 }
 
@@ -65,6 +66,18 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
     }
   }, [projects, isLoading]);
 
+  // Delete a project by id
+  const deleteProject = (projectId: string) => {
+    // Cannot delete the active project
+    if (activeProject?.id === projectId) {
+      return false;
+    }
+
+    // Filter out the project with the matching id
+    setProjects(projects.filter((project) => project.id !== projectId));
+    return true;
+  };
+
   return (
     <ProjectContext.Provider
       value={{
@@ -72,6 +85,7 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
         activeProject,
         setProjects,
         setActiveProject,
+        deleteProject,
         isLoading,
       }}
     >
