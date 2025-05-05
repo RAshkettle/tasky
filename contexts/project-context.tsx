@@ -20,6 +20,61 @@ interface ProjectContextType {
 
 const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
 
+// Generate a random project name - same logic as in projects page
+const generateRandomProjectName = (): string => {
+  const adjectives = [
+    "swift",
+    "brave",
+    "bright",
+    "cosmic",
+    "dynamic",
+    "elegant",
+    "fierce",
+    "golden",
+    "hidden",
+    "infinite",
+    "jovial",
+    "keen",
+    "lively",
+    "mystic",
+    "noble",
+    "optimal",
+    "prime",
+    "quantum",
+    "radiant",
+    "stellar",
+  ];
+
+  const nouns = [
+    "aurora",
+    "beacon",
+    "cascade",
+    "delta",
+    "echo",
+    "falcon",
+    "galaxy",
+    "horizon",
+    "impulse",
+    "journey",
+    "kingdom",
+    "legacy",
+    "meridian",
+    "nexus",
+    "orbit",
+    "phoenix",
+    "quasar",
+    "reef",
+    "summit",
+    "tempest",
+  ];
+
+  const randomAdjective =
+    adjectives[Math.floor(Math.random() * adjectives.length)];
+  const randomNoun = nouns[Math.floor(Math.random() * nouns.length)];
+
+  return `${randomAdjective}-${randomNoun}`;
+};
+
 export function ProjectProvider({ children }: { children: React.ReactNode }) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [activeProject, setActiveProject] = useState<Project | null>(null);
@@ -30,19 +85,48 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
     const storedProjects = localStorage.getItem("projects");
     const activeProjectId = localStorage.getItem("activeProjectId");
 
+    let parsedProjects: Project[] = [];
+    let activeProj: Project | null = null;
+
+    // If there are stored projects, load them
     if (storedProjects) {
-      const parsedProjects = JSON.parse(storedProjects);
+      parsedProjects = JSON.parse(storedProjects);
       setProjects(parsedProjects);
 
       // If there's an active project ID, find and set the active project
       if (activeProjectId) {
-        const active = parsedProjects.find(
-          (p: Project) => p.id === activeProjectId
-        );
-        if (active) {
-          setActiveProject(active);
+        activeProj =
+          parsedProjects.find((p: Project) => p.id === activeProjectId) || null;
+
+        if (activeProj) {
+          setActiveProject(activeProj);
         }
       }
+    }
+
+    // If no projects exist, create a default one
+    if (parsedProjects.length === 0) {
+      const defaultProject: Project = {
+        id: crypto.randomUUID(),
+        name: generateRandomProjectName(),
+        createdAt: Date.now(),
+      };
+
+      parsedProjects = [defaultProject];
+      activeProj = defaultProject;
+
+      setProjects(parsedProjects);
+      setActiveProject(defaultProject);
+
+      // Save to localStorage immediately
+      localStorage.setItem("projects", JSON.stringify(parsedProjects));
+      localStorage.setItem("activeProjectId", defaultProject.id);
+    }
+    // If we have projects but no active project, select the first one
+    else if (parsedProjects.length > 0 && !activeProj) {
+      activeProj = parsedProjects[0];
+      setActiveProject(activeProj);
+      localStorage.setItem("activeProjectId", activeProj.id);
     }
 
     setIsLoading(false);
