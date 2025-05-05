@@ -28,20 +28,22 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const storedProjects = localStorage.getItem("projects");
     const activeProjectId = localStorage.getItem("activeProjectId");
-    
+
     if (storedProjects) {
       const parsedProjects = JSON.parse(storedProjects);
       setProjects(parsedProjects);
-      
+
       // If there's an active project ID, find and set the active project
       if (activeProjectId) {
-        const active = parsedProjects.find((p: Project) => p.id === activeProjectId);
+        const active = parsedProjects.find(
+          (p: Project) => p.id === activeProjectId
+        );
         if (active) {
           setActiveProject(active);
         }
       }
     }
-    
+
     setIsLoading(false);
   }, []);
 

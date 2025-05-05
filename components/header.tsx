@@ -28,7 +28,9 @@ export default function Header() {
           {activeProject && (
             <div className="ml-4 flex items-center gap-1.5 bg-primary/10 px-3 py-1 rounded-md text-sm">
               <FolderKanban className="h-4 w-4 text-primary" />
-              <span className="font-mono italic font-medium">{activeProject.name}</span>
+              <span className="font-mono italic font-medium">
+                {activeProject.name}
+              </span>
             </div>
           )}
         </div>
