@@ -39,6 +39,82 @@ export default function StickyNotesApp() {
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [storageKey, setStorageKey] = useState(BASE_STORAGE_KEY);
 
+  const [windowSize, setWindowSize] = useState({
+    width: typeof window !== "undefined" ? window.innerWidth : 0,
+    height: typeof window !== "undefined" ? window.innerHeight : 0,
+  });
+
+  // Function to ensure notes are within the visible area
+  const ensureNotesInViewport = useCallback(() => {
+    if (notes.length === 0) return;
+
+    // Calculate the maximum usable area (with margins)
+    const maxX = windowSize.width - 280; // 280 = 264 (card width) + margins
+    const maxY = windowSize.height - 180; // 180 = approximate min height of card + margins
+    const minX = 10;
+    const minY = 60; // Allow space for the header
+
+    let notesNeedRepositioning = false;
+
+    const repositionedNotes = notes.map((note) => {
+      // If the note is out of bounds, reposition it
+      if (
+        note.left < minX ||
+        note.left > maxX ||
+        note.top < minY ||
+        note.top > maxY
+      ) {
+        notesNeedRepositioning = true;
+
+        return {
+          ...note,
+          left:
+            note.left < minX || note.left > maxX
+              ? Math.max(minX, Math.min(note.left, maxX))
+              : note.left,
+          top:
+            note.top < minY || note.top > maxY
+              ? Math.max(minY, Math.min(note.top, maxY))
+              : note.top,
+        };
+      }
+      return note;
+    });
+
+    // Only update if notes needed repositioning
+    if (notesNeedRepositioning) {
+      setNotes(repositionedNotes);
+    }
+  }, [notes, windowSize]);
+
+  // Track window resize events
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    };
+
+    // Initial setup
+    handleResize();
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Apply viewport constraints when window size changes or notes change
+  useEffect(() => {
+    ensureNotesInViewport();
+  }, [windowSize, ensureNotesInViewport]);
+
+  // Additional check after notes are loaded
+  useEffect(() => {
+    if (!isLoading && notes.length > 0) {
+      ensureNotesInViewport();
+    }
+  }, [isLoading, notes.length, ensureNotesInViewport]);
+
   // Update storage key when active project changes
   useEffect(() => {
     if (!isLoading) {
@@ -96,11 +172,23 @@ export default function StickyNotesApp() {
   ];
 
   const addNote = () => {
+    // Ensure the new note is placed within the visible area
+    const maxX = windowSize.width - 280;
+    const maxY = windowSize.height - 180;
+    const minX = 10;
+    const minY = 60;
+
     const newNote: Note = {
       id: Date.now().toString(),
       text: "",
-      left: Math.random() * (window.innerWidth - 250),
-      top: Math.random() * (window.innerHeight - 250),
+      left: Math.min(
+        maxX,
+        Math.max(minX, Math.random() * (windowSize.width - 250))
+      ),
+      top: Math.min(
+        maxY,
+        Math.max(minY, Math.random() * (windowSize.height - 250))
+      ),
       color: colors[Math.floor(Math.random() * colors.length)],
       updatedAt: Date.now(),
     };
