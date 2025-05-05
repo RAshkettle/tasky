@@ -1,12 +1,14 @@
 "use client";
 
-import { CheckCircle } from "lucide-react";
+import { useProjects } from "@/contexts/project-context";
+import { CheckCircle, FolderKanban } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ModeToggle } from "./mode-toggle";
 
 export default function Header() {
   const pathname = usePathname();
+  const { activeProject } = useProjects();
 
   const getLinkClass = (path: string) =>
     `text-sm font-medium hover:text-primary px-3 py-1 rounded-md transition-colors ${
@@ -23,6 +25,12 @@ export default function Header() {
           <Link href="/" className="text-xl font-bold">
             Tasky
           </Link>
+          {activeProject && (
+            <div className="ml-4 flex items-center gap-1.5 bg-primary/10 px-3 py-1 rounded-md text-sm">
+              <FolderKanban className="h-4 w-4 text-primary" />
+              <span className="font-mono italic font-medium">{activeProject.name}</span>
+            </div>
+          )}
         </div>
         <nav className="hidden md:flex gap-6">
           <Link href="/projects" className={getLinkClass("/projects")}>

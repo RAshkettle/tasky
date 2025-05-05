@@ -1,5 +1,6 @@
 import Header from "@/components/header";
 import { ThemeProvider } from "@/components/theme-provider";
+import { ProjectProvider } from "@/contexts/project-context";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import type React from "react";
@@ -28,8 +29,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Header />
-          {children}
+          <ProjectProvider>
+            <Header />
+            {children}
+          </ProjectProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -1,5 +1,6 @@
 "use client";
 
+import { Project, useProjects } from "@/contexts/project-context";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -11,37 +12,13 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { PlusCircle, RefreshCw } from "lucide-react";
-import { useEffect, useState } from "react";
-
-// Types
-interface Project {
-  id: string;
-  name: string;
-  createdAt: number;
-}
+import { CheckCircle, PlusCircle, RefreshCw } from "lucide-react";
+import { useState } from "react";
 
 export default function ProjectSelector() {
-  const [projects, setProjects] = useState<Project[]>([]);
+  const { projects, setProjects, activeProject, setActiveProject, isLoading } = useProjects();
   const [newProjectName, setNewProjectName] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
-
-  // Load projects from localStorage on component mount
-  useEffect(() => {
-    const storedProjects = localStorage.getItem("projects");
-    if (storedProjects) {
-      setProjects(JSON.parse(storedProjects));
-    }
-    setIsLoading(false);
-  }, []);
-
-  // Save projects to localStorage whenever they change
-  useEffect(() => {
-    if (!isLoading) {
-      localStorage.setItem("projects", JSON.stringify(projects));
-    }
-  }, [projects, isLoading]);
 
   // Generate a random project name
   const generateRandomName = () => {
@@ -140,13 +117,17 @@ export default function ProjectSelector() {
 
   // Select a project
   const selectProject = (project: Project) => {
-    // Here you would typically set this as the active project in your app state
-    // For this example, we'll just show a toast
+    setActiveProject(project);
+    
     toast({
       title: "Project Selected",
       description: `Now working with project: ${project.name}`,
     });
   };
+
+  if (isLoading) {
+    return <div className="container mx-auto py-8 px-4 text-center">Loading projects...</div>;
+  }
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -169,17 +150,26 @@ export default function ProjectSelector() {
                 {projects.map((project) => (
                   <Card
                     key={project.id}
-                    className="cursor-pointer hover:bg-muted/50 transition-colors"
+                    className={`cursor-pointer hover:bg-muted/50 transition-colors ${
+                      activeProject?.id === project.id 
+                        ? "border-primary bg-primary/10" 
+                        : ""
+                    }`}
                   >
                     <CardContent
-                      className="p-4"
+                      className="p-4 flex items-center justify-between"
                       onClick={() => selectProject(project)}
                     >
-                      <div className="font-medium">{project.name}</div>
-                      <div className="text-sm text-muted-foreground">
-                        Created{" "}
-                        {new Date(project.createdAt).toLocaleDateString()}
+                      <div>
+                        <div className="font-medium">{project.name}</div>
+                        <div className="text-sm text-muted-foreground">
+                          Created{" "}
+                          {new Date(project.createdAt).toLocaleDateString()}
+                        </div>
                       </div>
+                      {activeProject?.id === project.id && (
+                        <CheckCircle className="h-5 w-5 text-primary" />
+                      )}
                     </CardContent>
                   </Card>
                 ))}
