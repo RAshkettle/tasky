@@ -22,6 +22,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Project, useProjects } from "@/contexts/project-context";
 import { useToast } from "@/hooks/use-toast";
+import { generateUUID } from "@/lib/utils";
 import { CheckCircle, PlusCircle, RefreshCw, Trash2 } from "lucide-react";
 import { useState } from "react";
 
@@ -119,7 +120,7 @@ export default function ProjectSelector() {
     }
 
     const newProject: Project = {
-      id: crypto.randomUUID(),
+      id: generateUUID(),
       name: newProjectName,
       createdAt: Date.now(),
     };

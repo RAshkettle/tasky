@@ -76,3 +76,59 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Custom scrollbar styles for swimlanes */
+@layer components {
+  /* Default scrollbar styling */
+  .overflow-y-auto::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .overflow-y-auto::-webkit-scrollbar-track {
+    @apply bg-transparent rounded-md;
+  }
+
+  .overflow-y-auto::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 dark:bg-gray-600 rounded-md border-2 border-transparent bg-clip-padding;
+  }
+
+  .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-400 dark:bg-gray-500;
+  }
+
+  /* TODO lane scrollbar */
+  .todo-lane .overflow-y-auto::-webkit-scrollbar-thumb {
+    @apply bg-amber-300 dark:bg-amber-700 border-2 border-transparent bg-clip-padding;
+  }
+
+  .todo-lane .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+    @apply bg-amber-400 dark:bg-amber-600;
+  }
+
+  /* IN-PROGRESS lane scrollbar */
+  .in-progress-lane .overflow-y-auto::-webkit-scrollbar-thumb {
+    @apply bg-blue-300 dark:bg-blue-700 border-2 border-transparent bg-clip-padding;
+  }
+
+  .in-progress-lane .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+    @apply bg-blue-400 dark:bg-blue-600;
+  }
+
+  /* PARKED lane scrollbar */
+  .parked-lane .overflow-y-auto::-webkit-scrollbar-thumb {
+    @apply bg-purple-300 dark:bg-purple-700 border-2 border-transparent bg-clip-padding;
+  }
+
+  .parked-lane .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+    @apply bg-purple-400 dark:bg-purple-600;
+  }
+
+  /* DONE lane scrollbar */
+  .done-lane .overflow-y-auto::-webkit-scrollbar-thumb {
+    @apply bg-green-300 dark:bg-green-700 border-2 border-transparent bg-clip-padding;
+  }
+
+  .done-lane .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+    @apply bg-green-400 dark:bg-green-600;
+  }
+}

@@ -1,5 +1,6 @@
 "use client";
 
+import { generateUUID } from "@/lib/utils";
 import { createContext, useContext, useEffect, useState } from "react";
 
 // Types
@@ -108,7 +109,7 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
     // If no projects exist, create a default one
     if (parsedProjects.length === 0) {
       const defaultProject: Project = {
-        id: crypto.randomUUID(),
+        id: generateUUID(),
         name: generateRandomProjectName(),
         createdAt: Date.now(),
       };

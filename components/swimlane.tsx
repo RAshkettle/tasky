@@ -77,17 +77,32 @@ export default function Swimlane({
     }
   };
 
+  const getLaneClass = (lane: Lane): string => {
+    switch (lane) {
+      case "TODO":
+        return "todo-lane";
+      case "IN-PROGRESS":
+        return "in-progress-lane";
+      case "PARKED":
+        return "parked-lane";
+      case "DONE":
+        return "done-lane";
+      default:
+        return "";
+    }
+  };
+
   return (
     <div
       ref={drop}
-      className={`flex flex-col h-full min-h-[500px] rounded-lg border-2 ${getLaneColor(
-        laneId
-      )} ${isOver ? "ring-2 ring-primary" : ""}`}
+      className={`flex flex-col rounded-lg border-2 ${getLaneColor(laneId)} ${
+        isOver ? "ring-2 ring-primary" : ""
+      } h-[440px] overflow-x-hidden ${getLaneClass(laneId)}`}
     >
-      <div className="p-3 border-b-2 font-medium text-center">
+      <div className="p-3 border-b-2 font-medium text-center shrink-0">
         {getLaneTitle(laneId)} ({tasks.length})
       </div>
-      <div className="flex-1 p-2 overflow-y-auto">
+      <div className="overflow-y-auto overflow-x-hidden p-2">
         {tasks.map((task, index) => (
           <TaskCard
             key={task.id}
