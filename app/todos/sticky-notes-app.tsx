@@ -222,9 +222,11 @@ export default function StickyNotesApp() {
         ))}
       </div>
 
+      {/* Floating Add Button - always visible */}
       <Button
         onClick={addNote}
-        className="fixed bottom-6 right-6 rounded-full w-14 h-14 shadow-lg z-50"
+        className="fixed bottom-6 right-6 rounded-full w-14 h-14 shadow-xl z-[100] bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-200 hover:scale-110 animate-in slide-in-from-bottom-6"
+        aria-label="Add new note"
       >
         <Plus className="h-6 w-6" />
       </Button>
