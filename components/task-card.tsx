@@ -83,6 +83,11 @@ export default function TaskCard({
     priority: task.priority,
     category: task.category,
   });
+  const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(
+    null
+  );
+  const longPressDelay = 500; // 500ms for long press
+  const [isDraggable, setIsDraggable] = useState(false);
 
   // When task prop changes, update the editedTask state
   useEffect(() => {
@@ -93,6 +98,43 @@ export default function TaskCard({
       category: task.category,
     });
   }, [task]);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    // Start a timer for long press detection
+    const timer = setTimeout(() => {
+      // Enable dragging after long press
+      setIsDraggable(true);
+
+      // Provide haptic feedback if available
+      if (navigator.vibrate) {
+        navigator.vibrate(50);
+      }
+    }, longPressDelay);
+
+    setLongPressTimer(timer);
+  };
+
+  const handleTouchEnd = () => {
+    // Clear the long press timer if touch ends before the timer fires
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+      setLongPressTimer(null);
+    }
+
+    // Reset draggable state after a short delay to allow the drop to complete
+    setTimeout(() => {
+      setIsDraggable(false);
+    }, 100);
+  };
+
+  // Clean up any timers when component unmounts
+  useEffect(() => {
+    return () => {
+      if (longPressTimer) {
+        clearTimeout(longPressTimer);
+      }
+    };
+  }, [longPressTimer]);
 
   const handleUpdateTask = (): void => {
     if (onUpdateTask && editedTask.title) {
@@ -113,6 +155,8 @@ export default function TaskCard({
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
     }),
+    canDrag: () =>
+      window.matchMedia("(min-width: 768px)").matches || isDraggable,
   });
 
   const [{ handlerId }, drop] = useDrop({
@@ -204,6 +248,9 @@ export default function TaskCard({
       className={`mb-2 transition-opacity ${
         isDragging ? "opacity-50" : "opacity-100"
       }`}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      onTouchCancel={handleTouchEnd}
     >
       <Card className="shadow-sm hover:shadow">
         <CardHeader className="p-3 pb-0 flex flex-row justify-between items-start">

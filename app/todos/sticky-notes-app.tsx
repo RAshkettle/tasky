@@ -39,6 +39,11 @@ export default function StickyNotesApp() {
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [storageKey, setStorageKey] = useState(BASE_STORAGE_KEY);
 
+  const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(
+    null
+  );
+  const longPressDelay = 500; // 500ms for long press
+
   const [windowSize, setWindowSize] = useState({
     width: typeof window !== "undefined" ? window.innerWidth : 0,
     height: typeof window !== "undefined" ? window.innerHeight : 0,
@@ -244,6 +249,74 @@ export default function StickyNotesApp() {
     setDraggedNote(null);
   };
 
+  const handleTouchStart = (e: React.TouchEvent, noteId: string) => {
+    // Store the current target element reference
+    const targetElement = e.currentTarget;
+
+    // Start a timer for long press detection
+    const timer = setTimeout(() => {
+      try {
+        // Check if the element is still in the DOM
+        if (targetElement && document.body.contains(targetElement)) {
+          // Only allow dragging from the header
+          const rect = targetElement.getBoundingClientRect();
+          const touch = e.touches[0];
+
+          if (touch) {
+            setDragOffset({
+              x: touch.clientX - rect.left,
+              y: touch.clientY - rect.top,
+            });
+
+            setDraggedNote(noteId);
+
+            // Provide haptic feedback if available
+            if (navigator.vibrate) {
+              navigator.vibrate(50);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error in touch handler:", error);
+        // Clear any drag state to prevent unexpected behavior
+        setDraggedNote(null);
+      }
+    }, longPressDelay);
+
+    setLongPressTimer(timer);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!draggedNote) return;
+
+    e.preventDefault(); // Prevent scrolling while dragging
+    const touch = e.touches[0];
+
+    // Update the note position based on touch position and initial offset
+    setNotes(
+      notes.map((note) => {
+        if (note.id === draggedNote) {
+          return {
+            ...note,
+            left: touch.clientX - dragOffset.x,
+            top: touch.clientY - dragOffset.y,
+          };
+        }
+        return note;
+      })
+    );
+  };
+
+  const handleTouchEnd = () => {
+    // Clear the long press timer if touch ends before the timer fires
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+      setLongPressTimer(null);
+    }
+
+    setDraggedNote(null);
+  };
+
   useEffect(() => {
     // Add global mouse event listeners for dragging
     if (draggedNote) {
@@ -276,6 +349,51 @@ export default function StickyNotesApp() {
     }
   }, [draggedNote, dragOffset, notes]);
 
+  useEffect(() => {
+    // Add global touch event listeners for dragging
+    if (draggedNote) {
+      const handleGlobalTouchMove = (e: TouchEvent) => {
+        if (!e.touches[0]) return;
+
+        const touch = e.touches[0];
+        setNotes(
+          notes.map((note) => {
+            if (note.id === draggedNote) {
+              return {
+                ...note,
+                left: touch.clientX - dragOffset.x,
+                top: touch.clientY - dragOffset.y,
+              };
+            }
+            return note;
+          })
+        );
+      };
+
+      const handleGlobalTouchEnd = () => {
+        setDraggedNote(null);
+      };
+
+      document.addEventListener("touchmove", handleGlobalTouchMove, {
+        passive: false,
+      });
+      document.addEventListener("touchend", handleGlobalTouchEnd);
+
+      return () => {
+        document.removeEventListener("touchmove", handleGlobalTouchMove);
+        document.removeEventListener("touchend", handleGlobalTouchEnd);
+      };
+    }
+  }, [draggedNote, dragOffset, notes]);
+
+  useEffect(() => {
+    return () => {
+      if (longPressTimer) {
+        clearTimeout(longPressTimer);
+      }
+    };
+  }, [longPressTimer]);
+
   return (
     <div
       className="min-h-screen relative overflow-hidden dark:bg-none"
@@ -286,6 +404,8 @@ export default function StickyNotesApp() {
       }}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
     >
       {/* Light mode background overlay */}
       <div className="absolute inset-0 bg-slate-200/95 dark:hidden" />
@@ -338,6 +458,7 @@ export default function StickyNotesApp() {
             <div
               className={`h-7 w-full bg-gradient-to-r ${gradientFrom} ${gradientTo} flex items-center cursor-grab`}
               onMouseDown={(e) => handleMouseDown(e, note.id)}
+              onTouchStart={(e) => handleTouchStart(e, note.id)}
             >
               <div className="w-full h-full px-2">
                 <div className="flex justify-between items-center h-full">
