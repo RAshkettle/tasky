@@ -3,6 +3,7 @@
 import type React from "react";
 
 import { Button } from "@/components/ui/button";
+import { useProjects } from "@/contexts/project-context";
 import { Plus, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
@@ -15,7 +16,7 @@ type Note = {
   updatedAt?: number;
 };
 
-const STORAGE_KEY = "tasky-sticky-notes"; // More specific storage key
+const BASE_STORAGE_KEY = "tasky-sticky-notes"; // Base key, will be prefixed with project name
 
 // Check if localStorage is available
 const isStorageAvailable = (() => {
@@ -31,47 +32,60 @@ const isStorageAvailable = (() => {
 })();
 
 export default function StickyNotesApp() {
+  const { getProjectStorageKey, activeProject, isLoading } = useProjects();
   const [notes, setNotes] = useState<Note[]>([]);
   const [activeNote, setActiveNote] = useState<string | null>(null);
   const [draggedNote, setDraggedNote] = useState<string | null>(null);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [storageKey, setStorageKey] = useState(BASE_STORAGE_KEY);
 
-  // Load notes from localStorage on initial render
+  // Update storage key when active project changes
   useEffect(() => {
-    if (!isStorageAvailable) return;
+    if (!isLoading) {
+      setStorageKey(getProjectStorageKey(BASE_STORAGE_KEY));
+    }
+  }, [getProjectStorageKey, activeProject, isLoading]);
+
+  // Load notes from localStorage on initial render or when active project changes
+  useEffect(() => {
+    if (!isStorageAvailable || isLoading) return;
 
     try {
-      const savedNotes = localStorage.getItem(STORAGE_KEY);
+      const savedNotes = localStorage.getItem(storageKey);
       if (savedNotes) {
         const parsedNotes = JSON.parse(savedNotes);
         setNotes(parsedNotes);
+      } else {
+        // If no notes found for this project, start with empty array
+        setNotes([]);
       }
     } catch (e) {
       console.error("Failed to load notes from localStorage:", e);
     }
-  }, []);
+  }, [storageKey, isLoading]);
 
   // Debounced save to localStorage
   const saveNotesToStorage = useCallback(() => {
     if (!isStorageAvailable) return;
 
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
+      localStorage.setItem(storageKey, JSON.stringify(notes));
     } catch (e) {
       console.error("Failed to save notes to localStorage:", e);
     }
-  }, [notes]);
+  }, [notes, storageKey]);
 
   // Use a debounced effect for saving
   useEffect(() => {
-    if (notes.length === 0) return;
+    // Skip during loading or if no notes
+    if (isLoading) return;
 
     const timeoutId = setTimeout(() => {
       saveNotesToStorage();
     }, 500); // 500ms debounce
 
     return () => clearTimeout(timeoutId);
-  }, [notes, saveNotesToStorage]);
+  }, [notes, saveNotesToStorage, isLoading]);
 
   const colors = [
     "bg-yellow-200/50 border-yellow-400 from-yellow-300/70 to-yellow-200/70",
@@ -286,5 +300,3 @@ export default function StickyNotesApp() {
     </div>
   );
 }
-
-// This file was moved from `tasks` to `todos`. Updated imports if necessary.

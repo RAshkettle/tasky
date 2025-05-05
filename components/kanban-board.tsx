@@ -12,6 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useProjects } from "@/contexts/project-context";
 import { useCallback, useEffect, useState } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
@@ -40,9 +41,9 @@ export type KanbanData = {
 };
 
 /**
- * Storage keys for each lane's local storage
+ * Base storage keys for each lane's local storage, will be prefixed with project name
  */
-const STORAGE_KEYS: Record<Lane, string> = {
+const BASE_STORAGE_KEYS: Record<Lane, string> = {
   TODO: "kanban-lane-todo",
   "IN-PROGRESS": "kanban-lane-in-progress",
   PARKED: "kanban-lane-parked",
@@ -64,6 +65,11 @@ const laneOrder: Lane[] = ["TODO", "IN-PROGRESS", "PARKED", "DONE"];
  * @returns {JSX.Element} The rendered Kanban Board component
  */
 export default function KanbanBoard(): JSX.Element {
+  const {
+    getProjectStorageKey,
+    activeProject,
+    isLoading: projectLoading,
+  } = useProjects();
   const [tasks, setTasks] = useState<KanbanData>(initialData);
   const [newTask, setNewTask] = useState<Omit<Task, "id">>({
     title: "",
@@ -73,50 +79,71 @@ export default function KanbanBoard(): JSX.Element {
   });
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
+  const [storageKeys, setStorageKeys] =
+    useState<Record<Lane, string>>(BASE_STORAGE_KEYS);
 
-  // Load each swimlane from localStorage on initial render
+  // Update storage keys when active project changes
   useEffect(() => {
+    if (projectLoading) return;
+
+    const updatedKeys: Record<Lane, string> = {} as Record<Lane, string>;
+
+    laneOrder.forEach((lane) => {
+      updatedKeys[lane] = getProjectStorageKey(BASE_STORAGE_KEYS[lane]);
+    });
+
+    setStorageKeys(updatedKeys);
+  }, [getProjectStorageKey, activeProject, projectLoading]);
+
+  // Load each swimlane from localStorage on initial render or when project changes
+  useEffect(() => {
+    if (projectLoading) return;
+    setIsLoaded(false);
+
     const loadedData: KanbanData = { ...initialData };
     let hasData = false;
 
     // Load data for each lane from its dedicated storage key
     laneOrder.forEach((lane) => {
       try {
-        const savedLane = localStorage.getItem(STORAGE_KEYS[lane]);
+        const savedLane = localStorage.getItem(storageKeys[lane]);
         if (savedLane) {
           loadedData[lane] = JSON.parse(savedLane);
           hasData = true;
+        } else {
+          // Reset lane when switching to a project with no saved data
+          loadedData[lane] = [];
         }
       } catch (error) {
         console.error(`Failed to load ${lane} lane data:`, error);
       }
     });
 
-    if (hasData) {
-      setTasks(loadedData);
-    }
-
+    setTasks(loadedData);
     setIsLoaded(true);
-  }, []);
+  }, [storageKeys, projectLoading]);
 
   // Save a specific lane to localStorage
-  const saveLane = useCallback((lane: Lane, laneData: Task[]): void => {
-    try {
-      localStorage.setItem(STORAGE_KEYS[lane], JSON.stringify(laneData));
-    } catch (error) {
-      console.error(`Failed to save ${lane} lane data:`, error);
-    }
-  }, []);
+  const saveLane = useCallback(
+    (lane: Lane, laneData: Task[]): void => {
+      try {
+        localStorage.setItem(storageKeys[lane], JSON.stringify(laneData));
+      } catch (error) {
+        console.error(`Failed to save ${lane} lane data:`, error);
+      }
+    },
+    [storageKeys]
+  );
 
   // When tasks change, save the specific lanes that changed
   useEffect(() => {
-    if (!isLoaded) return;
+    if (!isLoaded || projectLoading) return;
 
     // Save each lane individually
     laneOrder.forEach((lane) => {
       saveLane(lane, tasks[lane]);
     });
-  }, [tasks, isLoaded, saveLane]);
+  }, [tasks, isLoaded, saveLane, projectLoading]);
 
   const moveTask = (
     taskId: string,

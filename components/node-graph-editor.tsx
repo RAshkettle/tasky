@@ -5,6 +5,7 @@ import type React from "react";
 import { CustomNode } from "@/components/custom-node";
 import { NodePropertiesPanel } from "@/components/node-properties-panel";
 import { Button } from "@/components/ui/button";
+import { useProjects } from "@/contexts/project-context";
 import { Plus } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import ReactFlow, {
@@ -34,8 +35,8 @@ const nodeTypes: NodeTypes = {
 const initialNodes: Node[] = [];
 const initialEdges: Edge[] = [];
 
-// Storage key for persisting graph data
-const STORAGE_KEY = "node-graph-data";
+// Base storage key for persisting graph data
+const BASE_STORAGE_KEY = "node-graph-data";
 
 /**
  * Node Graph Editor component for creating interactive node-based graphs.
@@ -43,12 +44,25 @@ const STORAGE_KEY = "node-graph-data";
  * @returns {JSX.Element} The rendered Node Graph Editor component
  */
 export default function NodeGraphEditor(): JSX.Element {
+  const {
+    getProjectStorageKey,
+    activeProject,
+    isLoading: projectLoading,
+  } = useProjects();
   const [nodes, setNodes] = useState<Node[]>(initialNodes);
   const [edges, setEdges] = useState<Edge[]>(initialEdges);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+  const [storageKey, setStorageKey] = useState(BASE_STORAGE_KEY);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   // Auto-save interval ID
   const autoSaveInterval = useRef<NodeJS.Timeout | null>(null);
+
+  // Update storage key when active project changes
+  useEffect(() => {
+    if (!projectLoading) {
+      setStorageKey(getProjectStorageKey(BASE_STORAGE_KEY));
+    }
+  }, [getProjectStorageKey, activeProject, projectLoading]);
 
   // Handle node changes (position, selection, etc.)
   const onNodesChange = useCallback(
@@ -135,13 +149,19 @@ export default function NodeGraphEditor(): JSX.Element {
   // Add a save button to manually save the graph data
   const saveGraph = (): void => {
     const data = { nodes, edges };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    localStorage.setItem(storageKey, JSON.stringify(data));
     alert("Graph saved successfully!");
   };
 
-  // Load graph data from localStorage on initial render or route entry
+  // Load graph data from localStorage on initial render or when project changes
   useEffect(() => {
-    const savedData = localStorage.getItem(STORAGE_KEY);
+    if (projectLoading) return;
+
+    // Clear existing data when project changes
+    setNodes(initialNodes);
+    setEdges(initialEdges);
+
+    const savedData = localStorage.getItem(storageKey);
     if (savedData) {
       try {
         const { nodes: savedNodes, edges: savedEdges } = JSON.parse(savedData);
@@ -153,9 +173,13 @@ export default function NodeGraphEditor(): JSX.Element {
     }
 
     // Start auto-save loop
+    if (autoSaveInterval.current) {
+      clearInterval(autoSaveInterval.current);
+    }
+
     autoSaveInterval.current = setInterval(() => {
       const data = { nodes, edges };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      localStorage.setItem(storageKey, JSON.stringify(data));
       console.log("Auto-saved graph data to localStorage");
     }, 10000);
 
@@ -166,7 +190,7 @@ export default function NodeGraphEditor(): JSX.Element {
         autoSaveInterval.current = null;
       }
     };
-  }, []);
+  }, [storageKey, projectLoading]);
 
   return (
     <div

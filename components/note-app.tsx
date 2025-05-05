@@ -1,14 +1,15 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { useProjects } from "@/contexts/project-context";
 import type { Note } from "@/types/note";
 import { PlusCircle } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { NoteEditor } from "./note-editor";
 import { NoteList } from "./note-list";
 
-// Define a consistent storage key
-const NOTES_STORAGE_KEY = "tasky-notes-data";
+// Define a base storage key that will be prefixed with the project name
+const BASE_NOTES_STORAGE_KEY = "tasky-notes-data";
 
 /**
  * Main Note App component that manages the notes application state and UI.
@@ -16,41 +17,60 @@ const NOTES_STORAGE_KEY = "tasky-notes-data";
  * @returns {JSX.Element} The rendered Note App component
  */
 export function NoteApp(): JSX.Element {
+  const { getProjectStorageKey, activeProject, isLoading } = useProjects();
   const [notes, setNotes] = useState<Note[]>([]);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
+  const [storageKey, setStorageKey] = useState(BASE_NOTES_STORAGE_KEY);
 
-  // Load notes from localStorage on initial render
+  // Update storage key when active project changes
   useEffect(() => {
+    if (!isLoading) {
+      setStorageKey(getProjectStorageKey(BASE_NOTES_STORAGE_KEY));
+    }
+  }, [getProjectStorageKey, activeProject, isLoading]);
+
+  // Load notes from localStorage on initial render or when project changes
+  useEffect(() => {
+    if (isLoading) return;
+
     try {
-      const savedNotes = localStorage.getItem(NOTES_STORAGE_KEY);
+      const savedNotes = localStorage.getItem(storageKey);
       if (savedNotes) {
         const parsedNotes = JSON.parse(savedNotes);
         setNotes(parsedNotes);
+        setSelectedNote(null); // Clear selection when project changes
+      } else {
+        // Reset notes when switching to a project with no saved notes
+        setNotes([]);
+        setSelectedNote(null);
       }
     } catch (error) {
       console.error("Failed to load notes from localStorage:", error);
     } finally {
       setIsLoaded(true);
     }
-  }, []);
+  }, [storageKey, isLoading]);
 
   // Memoized save function to avoid unnecessary re-renders
-  const saveNotesToStorage = useCallback((notesToSave: Note[]): void => {
-    try {
-      localStorage.setItem(NOTES_STORAGE_KEY, JSON.stringify(notesToSave));
-    } catch (error) {
-      console.error("Failed to save notes to localStorage:", error);
-    }
-  }, []);
+  const saveNotesToStorage = useCallback(
+    (notesToSave: Note[]): void => {
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(notesToSave));
+      } catch (error) {
+        console.error("Failed to save notes to localStorage:", error);
+      }
+    },
+    [storageKey]
+  );
 
   // Save notes to localStorage whenever they change, but only after initial load
   useEffect(() => {
-    if (isLoaded) {
+    if (isLoaded && !isLoading) {
       saveNotesToStorage(notes);
     }
-  }, [notes, saveNotesToStorage, isLoaded]);
+  }, [notes, saveNotesToStorage, isLoaded, isLoading]);
 
   const createNewNote = (): void => {
     const newNote: Note = {

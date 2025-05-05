@@ -15,6 +15,7 @@ interface ProjectContextType {
   setProjects: (projects: Project[]) => void;
   setActiveProject: (project: Project | null) => void;
   deleteProject: (projectId: string) => void;
+  getProjectStorageKey: (baseKey: string) => string;
   isLoading: boolean;
 }
 
@@ -162,6 +163,12 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
     return true;
   };
 
+  // Helper function to create project-specific storage keys
+  const getProjectStorageKey = (baseKey: string) => {
+    if (!activeProject) return baseKey;
+    return `${activeProject.name}:${baseKey}`;
+  };
+
   return (
     <ProjectContext.Provider
       value={{
@@ -170,6 +177,7 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
         setProjects,
         setActiveProject,
         deleteProject,
+        getProjectStorageKey,
         isLoading,
       }}
     >
