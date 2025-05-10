@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/table";
 import type { Issue, IssueStatus } from "@/types/issue";
 import { formatDistanceToNow } from "date-fns";
-import { useState } from "react";
+import { Key, useState } from "react";
 
 interface IssueListProps {
   issues: Issue[];
@@ -159,11 +159,13 @@ export default function IssueList({ issues, onStatusChange }: IssueListProps) {
                           <div>
                             <h4 className="text-sm font-medium mb-1">Labels</h4>
                             <div className="flex flex-wrap gap-2">
-                              {issue.labels.map((label) => (
-                                <Badge key={label} variant="outline">
-                                  {label}
-                                </Badge>
-                              ))}
+                              {issue.labels.map(
+                                (label: any, index: Key | null | undefined) => (
+                                  <Badge key={index} variant="outline">
+                                    {String(label)}
+                                  </Badge>
+                                )
+                              )}
                             </div>
                           </div>
                         </div>
@@ -205,15 +207,17 @@ export default function IssueList({ issues, onStatusChange }: IssueListProps) {
                   </TableCell>
                   <TableCell>
                     <div className="flex flex-wrap gap-1">
-                      {issue.labels.slice(0, 2).map((label) => (
-                        <Badge
-                          key={label}
-                          variant="outline"
-                          className="text-xs"
-                        >
-                          {label}
-                        </Badge>
-                      ))}
+                      {issue.labels
+                        .slice(0, 2)
+                        .map((label: any, index: Key | null | undefined) => (
+                          <Badge
+                            key={index}
+                            variant="outline"
+                            className="text-xs"
+                          >
+                            {String(label)}
+                          </Badge>
+                        ))}
                       {issue.labels.length > 2 && (
                         <Badge variant="outline" className="text-xs">
                           +{issue.labels.length - 2}

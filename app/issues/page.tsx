@@ -24,7 +24,14 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import type { Issue, IssuePriority, IssueStatus } from "@/types/issue";
 import { ArrowUpDown, Filter, PlusCircle, Search } from "lucide-react";
-import { useState } from "react";
+import {
+  JSXElementConstructor,
+  Key,
+  ReactElement,
+  ReactNode,
+  ReactPortal,
+  useState,
+} from "react";
 
 export default function IssueTracker() {
   const [issues, setIssues] = useState<Issue[]>([
@@ -184,7 +191,7 @@ export default function IssueTracker() {
   const handleRemoveLabel = (label: string) => {
     setNewIssue({
       ...newIssue,
-      labels: newIssue.labels?.filter((l) => l !== label),
+      labels: newIssue.labels?.filter((l: string) => l !== label),
     });
   };
 
@@ -312,7 +319,7 @@ export default function IssueTracker() {
                   </Button>
                 </div>
                 <div className="flex flex-wrap gap-2 mt-2">
-                  {newIssue.labels?.map((label) => (
+                  {newIssue.labels?.map((label: string) => (
                     <Badge
                       key={label}
                       variant="secondary"
