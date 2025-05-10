@@ -77,7 +77,7 @@ export function NoteEditor({
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="Write your note here using Markdown..."
-            className="min-h-[calc(100vh-16rem)] resize-none"
+            className="min-h-[320px] resize-none"
           />
           <div className="text-xs text-muted-foreground mt-2">
             <FileText className="h-3 w-3 inline-block mr-1" />
@@ -113,7 +113,7 @@ export function NoteEditor({
         {formatDistanceToNow(new Date(note.updatedAt), { addSuffix: true })}
       </div>
 
-      <div className="prose max-w-none dark:prose-invert">
+      <div className="prose max-w-none dark:prose-invert overflow-y-auto">
         {content ? (
           <ReactMarkdown rehypePlugins={[rehypeSanitize]}>
             {content}

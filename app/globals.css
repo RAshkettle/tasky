@@ -169,4 +169,21 @@
   .projects-container::-webkit-scrollbar-thumb:hover {
     @apply bg-primary/70;
   }
+
+  /* Notes container scrollbar */
+  .notes-container::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .notes-container::-webkit-scrollbar-track {
+    @apply bg-transparent rounded-md;
+  }
+
+  .notes-container::-webkit-scrollbar-thumb {
+    @apply bg-purple-600 rounded-md border-2 border-transparent bg-clip-padding transition-colors;
+  }
+
+  .notes-container::-webkit-scrollbar-thumb:hover {
+    @apply bg-purple-700;
+  }
 }

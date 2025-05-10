@@ -120,39 +120,43 @@ export function NoteApp(): JSX.Element {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-[calc(100vh-2rem)]">
-      <div className="md:col-span-1 border rounded-lg p-4 h-full overflow-y-auto">
-        <div className="flex justify-between items-center mb-4">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="md:col-span-1 border rounded-lg p-4 h-[440px] flex flex-col">
+        <div className="flex justify-between items-center mb-4 shrink-0">
           <h1 className="text-2xl font-bold">Notes</h1>
           <Button onClick={createNewNote} size="sm">
             <PlusCircle className="h-4 w-4 mr-2" />
             New
           </Button>
         </div>
-        <NoteList
-          notes={notes}
-          selectedNoteId={selectedNote?.id}
-          onSelectNote={selectNote}
-        />
-      </div>
-      <div className="md:col-span-2 border rounded-lg p-4 h-full overflow-y-auto">
-        {selectedNote ? (
-          <NoteEditor
-            note={selectedNote}
-            isEditing={isEditing}
-            onSave={updateNote}
-            onEdit={editNote}
-            onDelete={deleteNote}
+        <div className="overflow-y-auto overflow-x-hidden notes-container">
+          <NoteList
+            notes={notes}
+            selectedNoteId={selectedNote?.id}
+            onSelectNote={selectNote}
           />
-        ) : (
-          <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
-            <p className="mb-4">Select a note or create a new one</p>
-            <Button onClick={createNewNote} variant="outline">
-              <PlusCircle className="h-4 w-4 mr-2" />
-              Create your first note
-            </Button>
-          </div>
-        )}
+        </div>
+      </div>
+      <div className="md:col-span-2 border rounded-lg p-4 h-[440px] flex flex-col">
+        <div className="overflow-y-auto overflow-x-hidden notes-container">
+          {selectedNote ? (
+            <NoteEditor
+              note={selectedNote}
+              isEditing={isEditing}
+              onSave={updateNote}
+              onEdit={editNote}
+              onDelete={deleteNote}
+            />
+          ) : (
+            <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
+              <p className="mb-4">Select a note or create a new one</p>
+              <Button onClick={createNewNote} variant="outline">
+                <PlusCircle className="h-4 w-4 mr-2" />
+                Create your first note
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
