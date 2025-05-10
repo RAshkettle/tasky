@@ -77,7 +77,6 @@ export function NoteApp(): JSX.Element {
       id: Date.now().toString(),
       title: "Untitled Note",
       content: "",
-      drawing: null,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };

@@ -2,23 +2,16 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import type { Note } from "@/types/note";
 import { formatDistanceToNow } from "date-fns";
-import { Edit, FileText, PenTool, Save, Trash } from "lucide-react";
+import { Edit, FileText, Save, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
-import { DrawingCanvas } from "./drawing-canvas";
+import ReactMarkdown from "react-markdown";
+import rehypeSanitize from "rehype-sanitize";
 
 /**
  * Props interface for the NoteEditor component.
- *
- * @interface NoteEditorProps
- * @property {Note} note - The note object to display and edit
- * @property {boolean} isEditing - Whether the editor is in edit mode
- * @property {Function} onSave - Callback function triggered when a note is saved
- * @property {Function} onEdit - Callback function triggered when edit mode is activated
- * @property {Function} onDelete - Callback function triggered when a note is deleted
  */
 interface NoteEditorProps {
   note: Note;
@@ -29,10 +22,7 @@ interface NoteEditorProps {
 }
 
 /**
- * NoteEditor component for viewing and editing notes.
- *
- * @param {NoteEditorProps} props - Component properties
- * @returns {JSX.Element} The rendered NoteEditor component
+ * NoteEditor component for viewing and editing notes with Markdown.
  */
 export function NoteEditor({
   note,
@@ -40,17 +30,14 @@ export function NoteEditor({
   onSave,
   onEdit,
   onDelete,
-}: NoteEditorProps): JSX.Element {
+}: NoteEditorProps) {
   const [title, setTitle] = useState<string>(note.title);
   const [content, setContent] = useState<string>(note.content);
-  const [drawing, setDrawing] = useState<string | null>(note.drawing);
-  const [activeTab, setActiveTab] = useState<string>("text");
 
   // Update local state when the note changes
   useEffect(() => {
     setTitle(note.title);
     setContent(note.content);
-    setDrawing(note.drawing);
   }, [note]);
 
   const handleSave = (): void => {
@@ -58,7 +45,6 @@ export function NoteEditor({
       ...note,
       title: title || "Untitled Note",
       content,
-      drawing,
       updatedAt: new Date().toISOString(),
     };
     onSave(updatedNote);
@@ -68,10 +54,6 @@ export function NoteEditor({
     if (confirm("Are you sure you want to delete this note?")) {
       onDelete(note.id);
     }
-  };
-
-  const handleDrawingSave = (drawingData: string): void => {
-    setDrawing(drawingData);
   };
 
   if (isEditing) {
@@ -90,34 +72,18 @@ export function NoteEditor({
           </Button>
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full max-w-[200px] grid-cols-2">
-            <TabsTrigger value="text">
-              <FileText className="h-4 w-4 mr-2" />
-              Text
-            </TabsTrigger>
-            <TabsTrigger value="drawing">
-              <PenTool className="h-4 w-4 mr-2" />
-              Draw
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="text" className="mt-4">
-            <Textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder="Write your note here..."
-              className="min-h-[calc(100vh-16rem)] resize-none border-none focus-visible:ring-0 p-0"
-            />
-          </TabsContent>
-
-          <TabsContent value="drawing" className="mt-4">
-            <DrawingCanvas
-              initialDrawing={drawing}
-              onSave={handleDrawingSave}
-            />
-          </TabsContent>
-        </Tabs>
+        <div className="mt-4">
+          <Textarea
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            placeholder="Write your note here using Markdown..."
+            className="min-h-[calc(100vh-16rem)] resize-none"
+          />
+          <div className="text-xs text-muted-foreground mt-2">
+            <FileText className="h-3 w-3 inline-block mr-1" />
+            Markdown formatting supported
+          </div>
+        </div>
       </div>
     );
   }
@@ -147,42 +113,15 @@ export function NoteEditor({
         {formatDistanceToNow(new Date(note.updatedAt), { addSuffix: true })}
       </div>
 
-      <Tabs defaultValue="text" className="w-full">
-        <TabsList className="grid w-full max-w-[200px] grid-cols-2">
-          <TabsTrigger value="text">
-            <FileText className="h-4 w-4 mr-2" />
-            Text
-          </TabsTrigger>
-          <TabsTrigger value="drawing">
-            <PenTool className="h-4 w-4 mr-2" />
-            Draw
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="text" className="mt-4">
-          <div className="prose max-w-none">
-            {content ? (
-              <div className="whitespace-pre-wrap">{content}</div>
-            ) : (
-              <p className="text-muted-foreground italic">No content</p>
-            )}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="drawing" className="mt-4">
-          {drawing ? (
-            <div className="border rounded-md overflow-hidden">
-              <img
-                src={drawing || "/placeholder.svg"}
-                alt="Note drawing"
-                className="w-full"
-              />
-            </div>
-          ) : (
-            <p className="text-muted-foreground italic">No drawing</p>
-          )}
-        </TabsContent>
-      </Tabs>
+      <div className="prose max-w-none dark:prose-invert">
+        {content ? (
+          <ReactMarkdown rehypePlugins={[rehypeSanitize]}>
+            {content}
+          </ReactMarkdown>
+        ) : (
+          <p className="text-muted-foreground italic">No content</p>
+        )}
+      </div>
     </div>
   );
 }
