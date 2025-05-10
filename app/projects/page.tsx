@@ -24,7 +24,8 @@ import { Project, useProjects } from "@/contexts/project-context";
 import { useToast } from "@/hooks/use-toast";
 import { generateUUID } from "@/lib/utils";
 import { CheckCircle, PlusCircle, RefreshCw, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import generateRandomName from "./project-name";
 
 export default function ProjectSelector() {
   const {
@@ -39,59 +40,13 @@ export default function ProjectSelector() {
   const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
   const { toast } = useToast();
 
-  // Generate a random project name
-  const generateRandomName = () => {
-    const adjectives = [
-      "swift",
-      "brave",
-      "bright",
-      "cosmic",
-      "dynamic",
-      "elegant",
-      "fierce",
-      "golden",
-      "hidden",
-      "infinite",
-      "jovial",
-      "keen",
-      "lively",
-      "mystic",
-      "noble",
-      "optimal",
-      "prime",
-      "quantum",
-      "radiant",
-      "stellar",
-    ];
+  useEffect(() => {
+    createNewProjectName();
+  }, []);
 
-    const nouns = [
-      "aurora",
-      "beacon",
-      "cascade",
-      "delta",
-      "echo",
-      "falcon",
-      "galaxy",
-      "horizon",
-      "impulse",
-      "journey",
-      "kingdom",
-      "legacy",
-      "meridian",
-      "nexus",
-      "orbit",
-      "phoenix",
-      "quasar",
-      "reef",
-      "summit",
-      "tempest",
-    ];
-
-    const randomAdjective =
-      adjectives[Math.floor(Math.random() * adjectives.length)];
-    const randomNoun = nouns[Math.floor(Math.random() * nouns.length)];
-
-    setNewProjectName(`${randomAdjective}-${randomNoun}`);
+  const createNewProjectName = () => {
+    const name = generateRandomName();
+    setNewProjectName(`${name.randomAdjective}-${name.randomNoun}`);
   };
 
   // Create a new project
@@ -126,7 +81,7 @@ export default function ProjectSelector() {
     };
 
     setProjects([...projects, newProject]);
-    setNewProjectName("");
+    createNewProjectName();
 
     toast({
       title: "Success",
@@ -266,7 +221,7 @@ export default function ProjectSelector() {
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={generateRandomName}
+                  onClick={createNewProjectName}
                   title="Generate random name"
                 >
                   <RefreshCw className="h-4 w-4" />

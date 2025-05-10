@@ -1,5 +1,6 @@
 "use client";
 
+import generateRandomName from "@/app/projects/project-name";
 import { generateUUID } from "@/lib/utils";
 import { createContext, useContext, useEffect, useState } from "react";
 
@@ -15,67 +16,12 @@ interface ProjectContextType {
   activeProject: Project | null;
   setProjects: (projects: Project[]) => void;
   setActiveProject: (project: Project | null) => void;
-  deleteProject: (projectId: string) => void;
+  deleteProject: (projectId: string) => boolean;
   getProjectStorageKey: (baseKey: string) => string;
   isLoading: boolean;
 }
 
 const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
-
-// Generate a random project name - same logic as in projects page
-const generateRandomProjectName = (): string => {
-  const adjectives = [
-    "swift",
-    "brave",
-    "bright",
-    "cosmic",
-    "dynamic",
-    "elegant",
-    "fierce",
-    "golden",
-    "hidden",
-    "infinite",
-    "jovial",
-    "keen",
-    "lively",
-    "mystic",
-    "noble",
-    "optimal",
-    "prime",
-    "quantum",
-    "radiant",
-    "stellar",
-  ];
-
-  const nouns = [
-    "aurora",
-    "beacon",
-    "cascade",
-    "delta",
-    "echo",
-    "falcon",
-    "galaxy",
-    "horizon",
-    "impulse",
-    "journey",
-    "kingdom",
-    "legacy",
-    "meridian",
-    "nexus",
-    "orbit",
-    "phoenix",
-    "quasar",
-    "reef",
-    "summit",
-    "tempest",
-  ];
-
-  const randomAdjective =
-    adjectives[Math.floor(Math.random() * adjectives.length)];
-  const randomNoun = nouns[Math.floor(Math.random() * nouns.length)];
-
-  return `${randomAdjective}-${randomNoun}`;
-};
 
 export function ProjectProvider({ children }: { children: React.ReactNode }) {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -108,9 +54,10 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
 
     // If no projects exist, create a default one
     if (parsedProjects.length === 0) {
+      const name = generateRandomName();
       const defaultProject: Project = {
         id: generateUUID(),
-        name: generateRandomProjectName(),
+        name: `${name.randomAdjective}-${name.randomNoun}`,
         createdAt: Date.now(),
       };
 
