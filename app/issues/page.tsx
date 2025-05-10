@@ -95,6 +95,7 @@ export default function IssueTracker() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [priorityFilter, setPriorityFilter] = useState<string>("all");
   const [sortBy, setSortBy] = useState<string>("newest");
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const [newIssue, setNewIssue] = useState<Partial<Issue>>({
     title: "",
@@ -151,6 +152,11 @@ export default function IssueTracker() {
     });
 
   const handleCreateIssue = () => {
+    // Input validation
+    if (!newIssue.title || !newIssue.description) {
+      return; // Don't create issue if title or description is empty
+    }
+
     const issueToAdd: Issue = {
       id: (issues.length + 1).toString(),
       title: newIssue.title || "",
@@ -167,6 +173,9 @@ export default function IssueTracker() {
       status: "INVESTIGATE",
       priority: "medium",
     });
+
+    // Close the dialog
+    setDialogOpen(false);
   };
 
   const handleStatusChange = (issueId: string, newStatus: IssueStatus) => {
@@ -177,14 +186,18 @@ export default function IssueTracker() {
     );
   };
 
+  const handleDeleteIssue = (issueId: string) => {
+    setIssues(issues.filter((issue) => issue.id !== issueId));
+  };
+
   return (
     <main className="container mx-auto py-6 px-4 max-w-7xl">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <h1 className="text-3xl font-bold">Issue Tracker</h1>
 
-        <Dialog>
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="ml-auto">
+            <Button className="ml-auto" onClick={() => setDialogOpen(true)}>
               <PlusCircle className="mr-2 h-4 w-4" />
               New Issue
             </Button>
@@ -296,7 +309,11 @@ export default function IssueTracker() {
               </div>
             </div>
             <DialogFooter>
-              <Button type="submit" onClick={handleCreateIssue}>
+              <Button
+                type="submit"
+                onClick={handleCreateIssue}
+                disabled={!newIssue.title || !newIssue.description}
+              >
                 Create Issue
               </Button>
             </DialogFooter>
@@ -403,6 +420,7 @@ export default function IssueTracker() {
         <IssueList
           issues={filteredIssues}
           onStatusChange={handleStatusChange}
+          onDelete={handleDeleteIssue}
         />
       </div>
     </main>

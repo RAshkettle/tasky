@@ -1,10 +1,12 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -25,16 +27,24 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatDistanceToNow } from "date-fns";
+import { Trash2 } from "lucide-react";
 import { useState } from "react";
 import type { Issue, IssueStatus } from "../types/issue";
 
 interface IssueListProps {
   issues: Issue[];
   onStatusChange: (issueId: string, newStatus: IssueStatus) => void;
+  onDelete: (issueId: string) => void;
 }
 
-export default function IssueList({ issues, onStatusChange }: IssueListProps) {
+export default function IssueList({
+  issues,
+  onStatusChange,
+  onDelete,
+}: IssueListProps) {
   const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null);
+  const [issueToDelete, setIssueToDelete] = useState<Issue | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -78,6 +88,7 @@ export default function IssueList({ issues, onStatusChange }: IssueListProps) {
               <TableHead>Status</TableHead>
               <TableHead>Priority</TableHead>
               <TableHead>Created</TableHead>
+              <TableHead className="w-[60px]"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -218,12 +229,70 @@ export default function IssueList({ issues, onStatusChange }: IssueListProps) {
                   <TableCell className="text-muted-foreground">
                     {formatDistanceToNow(new Date(issue.createdAt))} ago
                   </TableCell>
+                  <TableCell>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-muted-foreground hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIssueToDelete(issue);
+                        setDeleteDialogOpen(true);
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))
             )}
           </TableBody>
         </Table>
       </div>
+
+      {/* Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-[425px] border-red-200 dark:border-red-900/50">
+          <DialogHeader>
+            <DialogTitle className="text-red-600 dark:text-red-400">
+              Confirm Deletion
+            </DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this issue? This action cannot be
+              undone.
+            </DialogDescription>
+          </DialogHeader>
+
+          {issueToDelete && (
+            <div className="py-4">
+              <h3 className="font-medium mb-2">{issueToDelete.title}</h3>
+              <p className="text-sm text-muted-foreground line-clamp-2">
+                {issueToDelete.description}
+              </p>
+            </div>
+          )}
+
+          <DialogFooter className="flex gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                if (issueToDelete) {
+                  onDelete(issueToDelete.id);
+                  setDeleteDialogOpen(false);
+                }
+              }}
+            >
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
