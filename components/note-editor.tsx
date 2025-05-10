@@ -42,6 +42,14 @@ export function NoteEditor({
     setContent(note.content);
   }, [note]);
 
+  // Reset form when exiting edit mode
+  useEffect(() => {
+    if (!isEditing) {
+      setTitle(note.title);
+      setContent(note.content);
+    }
+  }, [isEditing, note]);
+
   const handleSave = (): void => {
     const updatedNote: Note = {
       ...note,
@@ -50,6 +58,14 @@ export function NoteEditor({
       updatedAt: new Date().toISOString(),
     };
     onSave(updatedNote);
+  };
+
+  const handleCancel = (): void => {
+    // Reset form fields to original values
+    setTitle(note.title);
+    setContent(note.content);
+    // Call the parent component's cancel handler
+    onCancel();
   };
 
   const handleDelete = (): void => {
@@ -70,7 +86,7 @@ export function NoteEditor({
           />
           <div className="flex space-x-2">
             <Button
-              onClick={onCancel}
+              onClick={handleCancel}
               size="sm"
               variant="outline"
               className="text-muted-foreground"
