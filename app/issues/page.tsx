@@ -1,7 +1,6 @@
 "use client";
 
 import IssueList from "@/components/issue-list";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -33,55 +32,50 @@ export default function IssueTracker() {
       title: "Login page not responsive on mobile devices",
       description:
         "The login page breaks on screens smaller than 320px width. Inputs overflow and buttons are cut off.",
-      status: "open",
+      status: "TODO",
       priority: "high",
       assignee: "Sarah Chen",
       createdAt: "2025-05-01T10:30:00Z",
-      labels: ["bug", "frontend", "mobile"],
     },
     {
       id: "2",
       title: "Add dark mode support",
       description:
         "Implement dark mode toggle and corresponding styles across the application.",
-      status: "in-progress",
+      status: "IN-PROGRESS",
       priority: "medium",
       assignee: "Alex Johnson",
       createdAt: "2025-05-03T14:15:00Z",
-      labels: ["feature", "ui", "enhancement"],
     },
     {
       id: "3",
       title: "API rate limiting not working correctly",
       description:
         "Users are able to make unlimited API calls, causing performance issues during peak hours.",
-      status: "open",
+      status: "INVESTIGATE",
       priority: "critical",
       assignee: "Unassigned",
       createdAt: "2025-05-05T09:45:00Z",
-      labels: ["bug", "backend", "performance"],
     },
     {
       id: "4",
       title: "Implement user profile page",
       description:
         "Create a user profile page where users can update their information and preferences.",
-      status: "backlog",
+      status: "PARKED",
       priority: "low",
       assignee: "Jamie Smith",
       createdAt: "2025-05-02T11:20:00Z",
-      labels: ["feature", "frontend"],
     },
     {
       id: "5",
       title: "Fix memory leak in dashboard component",
       description:
         "Dashboard component doesn't clean up event listeners properly, causing memory leaks over time.",
-      status: "closed",
+      status: "DONE",
       priority: "high",
       assignee: "Robin Taylor",
       createdAt: "2025-04-28T16:00:00Z",
-      labels: ["bug", "frontend", "performance"],
     },
   ]);
 
@@ -93,13 +87,10 @@ export default function IssueTracker() {
   const [newIssue, setNewIssue] = useState<Partial<Issue>>({
     title: "",
     description: "",
-    status: "open",
+    status: "INVESTIGATE",
     priority: "medium",
     assignee: "",
-    labels: [],
   });
-
-  const [newLabel, setNewLabel] = useState("");
 
   // Filter and sort issues
   const filteredIssues = issues
@@ -153,38 +144,19 @@ export default function IssueTracker() {
       id: (issues.length + 1).toString(),
       title: newIssue.title || "",
       description: newIssue.description || "",
-      status: (newIssue.status as IssueStatus) || "open",
+      status: (newIssue.status as IssueStatus) || "INVESTIGATE",
       priority: (newIssue.priority as IssuePriority) || "medium",
       assignee: newIssue.assignee || "Unassigned",
       createdAt: new Date().toISOString(),
-      labels: newIssue.labels || [],
     };
 
     setIssues([...issues, issueToAdd]);
     setNewIssue({
       title: "",
       description: "",
-      status: "open",
+      status: "INVESTIGATE",
       priority: "medium",
       assignee: "",
-      labels: [],
-    });
-  };
-
-  const handleAddLabel = () => {
-    if (newLabel && !newIssue.labels?.includes(newLabel)) {
-      setNewIssue({
-        ...newIssue,
-        labels: [...(newIssue.labels || []), newLabel],
-      });
-      setNewLabel("");
-    }
-  };
-
-  const handleRemoveLabel = (label: string) => {
-    setNewIssue({
-      ...newIssue,
-      labels: newIssue.labels?.filter((l: string) => l !== label),
     });
   };
 
@@ -252,10 +224,11 @@ export default function IssueTracker() {
                       <SelectValue placeholder="Select status" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="open">Open</SelectItem>
-                      <SelectItem value="in-progress">In Progress</SelectItem>
-                      <SelectItem value="backlog">Backlog</SelectItem>
-                      <SelectItem value="closed">Closed</SelectItem>
+                      <SelectItem value="INVESTIGATE">Investigate</SelectItem>
+                      <SelectItem value="TODO">To Do</SelectItem>
+                      <SelectItem value="IN-PROGRESS">In Progress</SelectItem>
+                      <SelectItem value="PARKED">Parked</SelectItem>
+                      <SelectItem value="DONE">Done</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -293,42 +266,6 @@ export default function IssueTracker() {
                   }
                 />
               </div>
-              <div className="grid gap-2">
-                <Label htmlFor="labels">Labels</Label>
-                <div className="flex gap-2">
-                  <Input
-                    id="labels"
-                    placeholder="Add label"
-                    value={newLabel}
-                    onChange={(e) => setNewLabel(e.target.value)}
-                    className="flex-1"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleAddLabel}
-                  >
-                    Add
-                  </Button>
-                </div>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {newIssue.labels?.map((label: string) => (
-                    <Badge
-                      key={label}
-                      variant="secondary"
-                      className="flex items-center gap-1"
-                    >
-                      {label}
-                      <button
-                        onClick={() => handleRemoveLabel(label)}
-                        className="ml-1 rounded-full h-4 w-4 inline-flex items-center justify-center text-xs hover:bg-muted"
-                      >
-                        ×
-                      </button>
-                    </Badge>
-                  ))}
-                </div>
-              </div>
             </div>
             <DialogFooter>
               <Button type="submit" onClick={handleCreateIssue}>
@@ -362,10 +299,11 @@ export default function IssueTracker() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Statuses</SelectItem>
-                  <SelectItem value="open">Open</SelectItem>
-                  <SelectItem value="in-progress">In Progress</SelectItem>
-                  <SelectItem value="backlog">Backlog</SelectItem>
-                  <SelectItem value="closed">Closed</SelectItem>
+                  <SelectItem value="INVESTIGATE">Investigate</SelectItem>
+                  <SelectItem value="TODO">To Do</SelectItem>
+                  <SelectItem value="IN-PROGRESS">In Progress</SelectItem>
+                  <SelectItem value="PARKED">Parked</SelectItem>
+                  <SelectItem value="DONE">Done</SelectItem>
                 </SelectContent>
               </Select>
             </div>

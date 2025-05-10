@@ -1,4 +1,9 @@
-export type IssueStatus = "open" | "in-progress" | "backlog" | "closed";
+export type IssueStatus =
+  | "TODO"
+  | "IN-PROGRESS"
+  | "PARKED"
+  | "DONE"
+  | "INVESTIGATE";
 export type IssuePriority = "critical" | "high" | "medium" | "low";
 
 export interface Issue {
@@ -9,5 +14,4 @@ export interface Issue {
   priority: IssuePriority;
   assignee: string;
   createdAt: string;
-  labels: string[];
 }
