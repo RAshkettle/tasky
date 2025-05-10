@@ -64,8 +64,8 @@ export default function Header() {
           <Link href="/issues" className={getLinkClass("/issues")}>
             Issues
           </Link>
-          <Link href="/progress" className={getLinkClass("/progress")}>
-            Progress
+          <Link href="/kanban" className={getLinkClass("/kanban")}>
+            Kanban
           </Link>
           {/* Temporarily commented out Graph menu item
           <Link href="/graph" className={getLinkClass("/graph")}>
