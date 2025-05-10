@@ -5,4 +5,5 @@ export type Reminder = {
   top: number;
   color: string;
   updatedAt?: number;
+  createdAt: number;
 };

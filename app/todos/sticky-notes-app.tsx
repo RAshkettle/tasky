@@ -189,6 +189,7 @@ export default function StickyNotesApp() {
       ),
       color: colors[Math.floor(Math.random() * colors.length)],
       updatedAt: Date.now(),
+      createdAt: Date.now(),
     };
     setReminders([...reminders, newReminder]);
     setActiveReminder(newReminder.id);
