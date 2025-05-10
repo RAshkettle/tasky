@@ -27,14 +27,7 @@ const ProjectEditDialog = (props: Props) => {
     setEditedDescription,
     handleEditProject,
   } = props;
-  // const {
-  //   projects,
-  //   setProjects,
-  //   activeProject,
-  //   setActiveProject,
-  //   deleteProject,
-  //   isLoading,
-  // } = useProjects();
+
   return (
     <AlertDialog
       open={!!projectToEdit}
