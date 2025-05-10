@@ -183,12 +183,14 @@ export default function IssueList({
                                     <SelectValue />
                                   </SelectTrigger>
                                   <SelectContent>
-                                    <SelectItem
-                                      value="INVESTIGATE"
-                                      className="bg-orange-100 text-orange-800 hover:bg-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:hover:bg-orange-800/50"
-                                    >
-                                      Investigate
-                                    </SelectItem>
+                                    {editingIssue.status === "INVESTIGATE" && (
+                                      <SelectItem
+                                        value="INVESTIGATE"
+                                        className="bg-orange-100 text-orange-800 hover:bg-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:hover:bg-orange-800/50"
+                                      >
+                                        Investigate
+                                      </SelectItem>
+                                    )}
                                     <SelectItem
                                       value="TODO"
                                       className="bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-800/50"
@@ -292,12 +294,14 @@ export default function IssueList({
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem
-                          value="INVESTIGATE"
-                          className="bg-orange-100 text-orange-800 hover:bg-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:hover:bg-orange-800/50"
-                        >
-                          Investigate
-                        </SelectItem>
+                        {issue.status === "INVESTIGATE" && (
+                          <SelectItem
+                            value="INVESTIGATE"
+                            className="bg-orange-100 text-orange-800 hover:bg-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:hover:bg-orange-800/50"
+                          >
+                            Investigate
+                          </SelectItem>
+                        )}
                         <SelectItem
                           value="TODO"
                           className="bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-800/50"
