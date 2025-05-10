@@ -43,53 +43,7 @@ export default function IssueTracker() {
     }
   };
 
-  const [issues, setIssues] = useState<Issue[]>([
-    {
-      id: "1",
-      title: "Login page not responsive on mobile devices",
-      description:
-        "The login page breaks on screens smaller than 320px width. Inputs overflow and buttons are cut off.",
-      status: "TODO",
-      priority: "high",
-      createdAt: "2025-05-01T10:30:00Z",
-    },
-    {
-      id: "2",
-      title: "Add dark mode support",
-      description:
-        "Implement dark mode toggle and corresponding styles across the application.",
-      status: "IN-PROGRESS",
-      priority: "medium",
-      createdAt: "2025-05-03T14:15:00Z",
-    },
-    {
-      id: "3",
-      title: "API rate limiting not working correctly",
-      description:
-        "Users are able to make unlimited API calls, causing performance issues during peak hours.",
-      status: "INVESTIGATE",
-      priority: "critical",
-      createdAt: "2025-05-05T09:45:00Z",
-    },
-    {
-      id: "4",
-      title: "Implement user profile page",
-      description:
-        "Create a user profile page where users can update their information and preferences.",
-      status: "PARKED",
-      priority: "low",
-      createdAt: "2025-05-02T11:20:00Z",
-    },
-    {
-      id: "5",
-      title: "Fix memory leak in dashboard component",
-      description:
-        "Dashboard component doesn't clean up event listeners properly, causing memory leaks over time.",
-      status: "DONE",
-      priority: "high",
-      createdAt: "2025-04-28T16:00:00Z",
-    },
-  ]);
+  const [issues, setIssues] = useState<Issue[]>([]);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
