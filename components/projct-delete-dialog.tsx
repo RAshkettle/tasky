@@ -8,17 +8,37 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Project } from "@/contexts/project-context";
-import { Dispatch, SetStateAction } from "react";
+import { Project, useProjects } from "@/contexts/project-context";
+import { useToast } from "@/hooks/use-toast";
 
 type Props = {
   projectToDelete: Project | null;
-  setProjectToDelete: Dispatch<SetStateAction<Project | null>>;
-  handleDeleteProject: (id: string) => void;
+  setProjectToDelete: (project: Project | null) => void;
 };
 
 const ProjectDeleteConfirmationDialog = (props: Props) => {
-  const { projectToDelete, setProjectToDelete, handleDeleteProject } = props;
+  const { projectToDelete, setProjectToDelete } = props;
+  const { deleteProject } = useProjects();
+  const { toast } = useToast();
+  // Handle project deletion
+  const handleDeleteProject = (projectId: string) => {
+    const success = deleteProject(projectId);
+
+    if (success) {
+      toast({
+        title: "Project Deleted",
+        description: "The project has been permanently deleted",
+      });
+      setProjectToDelete(null);
+    } else {
+      toast({
+        title: "Cannot Delete",
+        description: "You cannot delete the currently active project",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <AlertDialog
       open={!!projectToDelete}

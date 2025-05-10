@@ -1,3 +1,4 @@
+import generateRandomName from "@/app/projects/project-name";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -7,27 +8,74 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Project } from "@/contexts/project-context";
+import { generateUUID } from "@/lib/utils";
 import { PlusCircle, RefreshCcw } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Input } from "./ui/input";
+import { useToast } from "./ui/use-toast";
 
 type Props = {
-  newProjectName: string;
-  setNewProjectName: (id: string) => void;
-  createNewProjectName: () => void;
-  newProjectDescription: string;
-  setNewProjectDescription: (description: string) => void;
-  createProject: () => void;
+  projects: Project[];
+  setProjects: (projects: Project[]) => void;
 };
 
 const CreateNewProject = (props: Props) => {
-  const {
-    newProjectName,
-    setNewProjectName,
-    createNewProjectName,
-    newProjectDescription,
-    setNewProjectDescription,
-    createProject,
-  } = props;
+  const { projects, setProjects } = props;
+  const [newProjectName, setNewProjectName] = useState("");
+  const [newProjectDescription, setNewProjectDescription] = useState("");
+
+  useEffect(() => {
+    createNewProjectName();
+  }, []);
+  const { toast } = useToast();
+
+  const createNewProjectName = () => {
+    const name = generateRandomName();
+    setNewProjectName(`${name.randomAdjective}-${name.randomNoun}`);
+  };
+
+  const createProject = () => {
+    if (!newProjectName.trim()) {
+      toast({
+        title: "Error",
+        description: "Project name cannot be empty",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check if project name already exists
+    if (
+      projects.some(
+        (project) => project.name.toLowerCase() === newProjectName.toLowerCase()
+      )
+    ) {
+      toast({
+        title: "Error",
+        description: "A project with this name already exists",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const newProject: Project = {
+      id: generateUUID(),
+      name: newProjectName,
+      createdAt: Date.now(),
+      description: newProjectDescription.trim() || undefined, // Only include if it has content
+    };
+
+    setProjects([...projects, newProject]);
+    createNewProjectName();
+    setNewProjectDescription(""); // Clear the description field
+
+    toast({
+      title: "Success",
+      description: `Project "${newProjectName}" created successfully`,
+    });
+  };
+
   return (
     <Card>
       <CardHeader>

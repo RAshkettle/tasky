@@ -1,16 +1,14 @@
 "use client";
 
 import ExistingProjectList from "@/components/existing-project-list";
-import ProjectDeleteConfirmationDialog from "@/components/projct-delete-dialog";
 import ProjectEditDialog from "@/components/project-edit-dialog";
 
 import { Project, useProjects } from "@/contexts/project-context";
 import { useToast } from "@/hooks/use-toast";
-import { generateUUID } from "@/lib/utils";
 
 import CreateNewProject from "@/components/create-new-project";
-import { useEffect, useState } from "react";
-import generateRandomName from "./project-name";
+import ProjectDeleteConfirmationDialog from "@/components/projct-delete-dialog";
+import { useState } from "react";
 
 export default function ProjectSelector() {
   const {
@@ -21,63 +19,11 @@ export default function ProjectSelector() {
     deleteProject,
     isLoading,
   } = useProjects();
-  const [newProjectName, setNewProjectName] = useState("");
-  const [newProjectDescription, setNewProjectDescription] = useState("");
-  const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
+
   const [projectToEdit, setProjectToEdit] = useState<Project | null>(null);
   const [editedDescription, setEditedDescription] = useState("");
+  const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
   const { toast } = useToast();
-
-  useEffect(() => {
-    createNewProjectName();
-  }, []);
-
-  const createNewProjectName = () => {
-    const name = generateRandomName();
-    setNewProjectName(`${name.randomAdjective}-${name.randomNoun}`);
-  };
-
-  // Create a new project
-  const createProject = () => {
-    if (!newProjectName.trim()) {
-      toast({
-        title: "Error",
-        description: "Project name cannot be empty",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Check if project name already exists
-    if (
-      projects.some(
-        (project) => project.name.toLowerCase() === newProjectName.toLowerCase()
-      )
-    ) {
-      toast({
-        title: "Error",
-        description: "A project with this name already exists",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const newProject: Project = {
-      id: generateUUID(),
-      name: newProjectName,
-      createdAt: Date.now(),
-      description: newProjectDescription.trim() || undefined, // Only include if it has content
-    };
-
-    setProjects([...projects, newProject]);
-    createNewProjectName();
-    setNewProjectDescription(""); // Clear the description field
-
-    toast({
-      title: "Success",
-      description: `Project "${newProjectName}" created successfully`,
-    });
-  };
 
   // Select a project
   const selectProject = (project: Project) => {
@@ -87,41 +33,6 @@ export default function ProjectSelector() {
       title: "Project Selected",
       description: `Now working with project: ${project.name}`,
     });
-  };
-
-  // Handle project deletion
-  const handleDeleteProject = (projectId: string) => {
-    const success = deleteProject(projectId);
-
-    if (success) {
-      toast({
-        title: "Project Deleted",
-        description: "The project has been permanently deleted",
-      });
-      setProjectToDelete(null);
-    } else {
-      toast({
-        title: "Cannot Delete",
-        description: "You cannot delete the currently active project",
-        variant: "destructive",
-      });
-    }
-  };
-
-  // Handle delete button click - open confirmation dialog
-  const handleDeleteClick = (e: React.MouseEvent, project: Project) => {
-    e.stopPropagation(); // Prevent card click/project selection
-
-    if (project.id === activeProject?.id) {
-      toast({
-        title: "Cannot Delete",
-        description: "You cannot delete the currently active project",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setProjectToDelete(project);
   };
 
   // Handle editing project description
@@ -170,6 +81,22 @@ export default function ProjectSelector() {
     );
   }
 
+  // Handle delete button click - open confirmation dialog
+  const handleDeleteClick = (e: React.MouseEvent, project: Project) => {
+    e.stopPropagation(); // Prevent card click/project selection
+
+    if (project.id === activeProject?.id) {
+      toast({
+        title: "Cannot Delete",
+        description: "You cannot delete the currently active project",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setProjectToDelete(project);
+  };
+
   return (
     <div className="container mx-auto py-8 px-4">
       <h1 className="text-3xl font-bold mb-8 text-center">Project Manager</h1>
@@ -184,21 +111,13 @@ export default function ProjectSelector() {
           handleDeleteClick={handleDeleteClick}
         />
         {/* Create New Project Section */}
-        <CreateNewProject
-          newProjectName={newProjectName}
-          setNewProjectName={setNewProjectName}
-          createNewProjectName={createNewProjectName}
-          newProjectDescription={newProjectDescription}
-          setNewProjectDescription={setNewProjectDescription}
-          createProject={createProject}
-        />
+        <CreateNewProject projects={projects} setProjects={setProjects} />
       </div>
 
       {/* Delete Confirmation Dialog */}
       <ProjectDeleteConfirmationDialog
         projectToDelete={projectToDelete}
         setProjectToDelete={setProjectToDelete}
-        handleDeleteProject={handleDeleteProject}
       />
       {/* Edit Project Dialog */}
       <ProjectEditDialog
