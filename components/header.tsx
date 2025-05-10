@@ -64,9 +64,11 @@ export default function Header() {
           <Link href="/progress" className={getLinkClass("/progress")}>
             Progress
           </Link>
+          {/* Temporarily commented out Graph menu item
           <Link href="/graph" className={getLinkClass("/graph")}>
             Graph
           </Link>
+          */}
         </nav>
         <div className="flex items-center gap-4">
           <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
@@ -113,6 +115,7 @@ export default function Header() {
                 >
                   Progress
                 </Link>
+                {/* Temporarily commented out Graph menu item
                 <Link
                   href="/graph"
                   className={getMobileLinkClass("/graph")}
@@ -120,6 +123,7 @@ export default function Header() {
                 >
                   Graph
                 </Link>
+                */}
               </div>
             </SheetContent>
           </Sheet>
