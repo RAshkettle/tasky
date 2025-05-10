@@ -2,7 +2,7 @@
 
 import type { Lane, Task } from "@/components/kanban-board";
 import TaskCard from "@/components/task-card";
-import { JSX } from "react";
+import { JSX, useRef } from "react";
 import { useDrop } from "react-dnd";
 
 /**
@@ -36,6 +36,7 @@ export default function Swimlane({
   onUpdateTask,
   onDeleteTask,
 }: SwimlaneProps): JSX.Element {
+  const dropRef = useRef<HTMLDivElement>(null);
   const [{ isOver }, drop] = useDrop({
     accept: "task",
     drop: (item: { id: string; laneId: Lane; index: number }): void => {
@@ -47,6 +48,9 @@ export default function Swimlane({
       isOver: !!monitor.isOver(),
     }),
   });
+
+  // Connect the drop ref
+  drop(dropRef);
 
   const getLaneColor = (lane: Lane): string => {
     switch (lane) {
@@ -95,7 +99,7 @@ export default function Swimlane({
 
   return (
     <div
-      ref={drop}
+      ref={dropRef}
       className={`flex flex-col rounded-lg border-2 ${getLaneColor(laneId)} ${
         isOver ? "ring-2 ring-primary" : ""
       } h-[440px] overflow-x-hidden ${getLaneClass(laneId)}`}

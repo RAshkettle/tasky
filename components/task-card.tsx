@@ -188,7 +188,11 @@ export default function TaskCard({
       window.matchMedia("(min-width: 768px)").matches || isDraggable,
   });
 
-  const [{ handlerId }, drop] = useDrop({
+  const [{ handlerId }, drop] = useDrop<
+    TaskDragItem,
+    unknown,
+    { handlerId: string | symbol | null }
+  >({
     accept: "task",
     collect(monitor) {
       return {
