@@ -32,7 +32,7 @@ import {
   PencilIcon,
   Trash2Icon,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { JSX, useEffect, useRef, useState } from "react";
 import { useDrag, useDrop } from "react-dnd";
 
 /**
@@ -165,7 +165,20 @@ export default function TaskCard({
     }
   };
 
-  const [{ isDragging }, drag] = useDrag({
+  /**
+   * Interface defining the data structure for drag operations
+   */
+  interface TaskDragItem {
+    id: string;
+    laneId: Lane;
+    index: number;
+  }
+
+  const [{ isDragging }, drag] = useDrag<
+    TaskDragItem,
+    unknown,
+    { isDragging: boolean }
+  >({
     type: "task",
     item: { id: task.id, laneId, index },
     collect: (monitor) => ({

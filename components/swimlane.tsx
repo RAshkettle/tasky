@@ -2,6 +2,7 @@
 
 import type { Lane, Task } from "@/components/kanban-board";
 import TaskCard from "@/components/task-card";
+import { JSX } from "react";
 import { useDrop } from "react-dnd";
 
 /**
