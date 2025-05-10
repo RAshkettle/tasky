@@ -74,20 +74,20 @@ export default function Home() {
               </Card>
               <Card className="p-6">
                 <div className="flex flex-col items-center space-y-2 text-center">
-                  <CheckCircle className="h-12 w-12 text-primary" />
-                  <h3 className="text-xl font-bold">Progress</h3>
+                  <BarChart3 className="h-12 w-12 text-primary" />
+                  <h3 className="text-xl font-bold">Issues</h3>
                   <p className="text-muted-foreground">
-                    Track your progress with tasks on a simple no-frills Kanban
-                    board.
+                    All your issues and bugs all in one place.
                   </p>
                 </div>
               </Card>
               <Card className="p-6">
                 <div className="flex flex-col items-center space-y-2 text-center">
-                  <BarChart3 className="h-12 w-12 text-primary" />
-                  <h3 className="text-xl font-bold">Graph</h3>
+                  <CheckCircle className="h-12 w-12 text-primary" />
+                  <h3 className="text-xl font-bold">Kanban</h3>
                   <p className="text-muted-foreground">
-                    Create ad-hoc scene graphs for mind-mapping.
+                    Track your progress with tasks on a simple no-frills Kanban
+                    board.
                   </p>
                 </div>
               </Card>
