@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -25,7 +26,7 @@ export type Task = {
   title: string;
   description: string;
   priority: "low" | "medium" | "high";
-  category: "art" | "code" | "design" | "audio" | "other";
+  category: "art" | "code" | "design" | "audio" | "bugfix" | "other";
 };
 
 /**
@@ -292,6 +293,10 @@ export default function KanbanBoard(): JSX.Element {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Add New Task</DialogTitle>
+              <DialogDescription>
+                Create a new task with a title, description, priority, and
+                category.
+              </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
@@ -349,6 +354,7 @@ export default function KanbanBoard(): JSX.Element {
                           | "code"
                           | "design"
                           | "audio"
+                          | "bugfix"
                           | "other",
                       })
                     }
@@ -357,6 +363,7 @@ export default function KanbanBoard(): JSX.Element {
                     <option value="code">Code</option>
                     <option value="design">Design</option>
                     <option value="audio">Audio</option>
+                    <option value="bugfix">Bugfix</option>
                     <option value="other">Other</option>
                   </select>
                 </div>

@@ -14,6 +14,7 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -22,6 +23,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
+  BugIcon,
   CodeIcon,
   EditIcon,
   LayoutIcon,
@@ -77,11 +79,14 @@ export default function TaskCard({
 }: TaskCardProps): JSX.Element {
   const ref = useRef<HTMLDivElement>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState<boolean>(false);
-  const [editedTask, setEditedTask] = useState<Partial<Task>>({
+  const [editedTask, setEditedTask] = useState<
+    Partial<Task> & { swimlane?: Lane }
+  >({
     title: task.title,
     description: task.description,
     priority: task.priority,
     category: task.category,
+    swimlane: laneId,
   });
   const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(
     null
@@ -96,8 +101,9 @@ export default function TaskCard({
       description: task.description,
       priority: task.priority,
       category: task.category,
+      swimlane: laneId,
     });
-  }, [task]);
+  }, [task, laneId]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     // Start a timer for long press detection
@@ -138,7 +144,17 @@ export default function TaskCard({
 
   const handleUpdateTask = (): void => {
     if (onUpdateTask && editedTask.title) {
-      onUpdateTask(task.id, editedTask);
+      // Extract swimlane from editedTask to handle it separately
+      const { swimlane, ...taskData } = editedTask;
+
+      // Update the task data (title, description, etc.)
+      onUpdateTask(task.id, taskData);
+
+      // If swimlane has changed, move the task to the new lane
+      if (swimlane && swimlane !== laneId) {
+        onMoveTask(task.id, laneId, swimlane);
+      }
+
       setIsEditDialogOpen(false);
     }
   };
@@ -223,6 +239,8 @@ export default function TaskCard({
         return <LayoutIcon className="h-4 w-4 mr-1" />;
       case "audio":
         return <MusicIcon className="h-4 w-4 mr-1" />;
+      case "bugfix":
+        return <BugIcon className="h-4 w-4 mr-1" />;
       default:
         return <MoreHorizontalIcon className="h-4 w-4 mr-1" />;
     }
@@ -265,6 +283,9 @@ export default function TaskCard({
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle>Edit Task</DialogTitle>
+                  <DialogDescription>
+                    Make changes to your task here. Click save when you're done.
+                  </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
                   <div className="grid gap-2">
@@ -328,6 +349,7 @@ export default function TaskCard({
                               | "code"
                               | "design"
                               | "audio"
+                              | "bugfix"
                               | "other",
                           })
                         }
@@ -336,9 +358,29 @@ export default function TaskCard({
                         <option value="code">Code</option>
                         <option value="design">Design</option>
                         <option value="audio">Audio</option>
+                        <option value="bugfix">Bugfix</option>
                         <option value="other">Other</option>
                       </select>
                     </div>
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="edit-swimlane">Swimlane</Label>
+                    <select
+                      id="edit-swimlane"
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      value={editedTask.swimlane}
+                      onChange={(e) =>
+                        setEditedTask({
+                          ...editedTask,
+                          swimlane: e.target.value as Lane,
+                        })
+                      }
+                    >
+                      <option value="TODO">To Do</option>
+                      <option value="IN-PROGRESS">In Progress</option>
+                      <option value="PARKED">Parked</option>
+                      <option value="DONE">Done</option>
+                    </select>
                   </div>
                 </div>
                 <div className="flex justify-between">
