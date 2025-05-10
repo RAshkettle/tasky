@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import type { Note } from "@/types/note";
 import { formatDistanceToNow } from "date-fns";
-import { Edit, FileText, Save, Trash, X } from "lucide-react";
+import { Edit, Save, Trash, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import rehypeSanitize from "rehype-sanitize";
@@ -76,7 +76,7 @@ export function NoteEditor({
 
   if (isEditing) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-4 h-full">
         <div className="flex justify-between items-center">
           <Input
             value={title}
@@ -101,17 +101,13 @@ export function NoteEditor({
           </div>
         </div>
 
-        <div className="mt-4">
+        <div className="mt-4 h-full">
           <Textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="Write your note here using Markdown..."
-            className="min-h-[320px] resize-none"
+            className="h-full resize-none"
           />
-          <div className="text-xs text-muted-foreground mt-2">
-            <FileText className="h-3 w-3 inline-block mr-1" />
-            Markdown formatting supported
-          </div>
         </div>
       </div>
     );
