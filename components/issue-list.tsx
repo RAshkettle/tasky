@@ -24,9 +24,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { Issue, IssueStatus } from "@/types/issue";
 import { formatDistanceToNow } from "date-fns";
 import { Key, useState } from "react";
+import type { Issue, IssueStatus } from "../types/issue";
 
 interface IssueListProps {
   issues: Issue[];

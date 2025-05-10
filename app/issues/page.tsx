@@ -22,16 +22,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import type { Issue, IssuePriority, IssueStatus } from "@/types/issue";
 import { ArrowUpDown, Filter, PlusCircle, Search } from "lucide-react";
-import {
-  JSXElementConstructor,
-  Key,
-  ReactElement,
-  ReactNode,
-  ReactPortal,
-  useState,
-} from "react";
+import { useState } from "react";
+import type { Issue, IssuePriority, IssueStatus } from "../../types/issue";
 
 export default function IssueTracker() {
   const [issues, setIssues] = useState<Issue[]>([
