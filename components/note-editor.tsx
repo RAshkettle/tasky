@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import type { Note } from "@/types/note";
 import { formatDistanceToNow } from "date-fns";
-import { Edit, FileText, Save, Trash } from "lucide-react";
+import { Edit, FileText, Save, Trash, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import rehypeSanitize from "rehype-sanitize";
@@ -19,6 +19,7 @@ interface NoteEditorProps {
   onSave: (note: Note) => void;
   onEdit: () => void;
   onDelete: (id: string) => void;
+  onCancel: () => void;
 }
 
 /**
@@ -30,6 +31,7 @@ export function NoteEditor({
   onSave,
   onEdit,
   onDelete,
+  onCancel,
 }: NoteEditorProps) {
   const [title, setTitle] = useState<string>(note.title);
   const [content, setContent] = useState<string>(note.content);
@@ -66,10 +68,21 @@ export function NoteEditor({
             placeholder="Note title"
             className="text-xl font-bold border-none shadow-none focus-visible:ring-0 px-0 h-auto"
           />
-          <Button onClick={handleSave} size="sm" variant="outline">
-            <Save className="h-4 w-4 mr-2" />
-            Save
-          </Button>
+          <div className="flex space-x-2">
+            <Button
+              onClick={onCancel}
+              size="sm"
+              variant="outline"
+              className="text-muted-foreground"
+            >
+              <X className="h-4 w-4 mr-2" />
+              Cancel
+            </Button>
+            <Button onClick={handleSave} size="sm" variant="outline">
+              <Save className="h-4 w-4 mr-2" />
+              Save
+            </Button>
+          </div>
         </div>
 
         <div className="mt-4">

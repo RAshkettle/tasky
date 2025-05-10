@@ -21,6 +21,7 @@ export function NoteApp(): JSX.Element {
   const [notes, setNotes] = useState<Note[]>([]);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [isNewNote, setIsNewNote] = useState<boolean>(false);
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
   const [storageKey, setStorageKey] = useState(BASE_NOTES_STORAGE_KEY);
 
@@ -80,17 +81,27 @@ export function NoteApp(): JSX.Element {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-    setNotes([newNote, ...notes]);
     setSelectedNote(newNote);
     setIsEditing(true);
+    setIsNewNote(true);
   };
 
   const updateNote = (updatedNote: Note): void => {
-    const updatedNotes = notes.map((note) =>
-      note.id === updatedNote.id
-        ? { ...updatedNote, updatedAt: new Date().toISOString() }
-        : note
-    );
+    let updatedNotes;
+
+    if (isNewNote) {
+      // Add the new note to the list
+      updatedNotes = [updatedNote, ...notes];
+      setIsNewNote(false);
+    } else {
+      // Update existing note
+      updatedNotes = notes.map((note) =>
+        note.id === updatedNote.id
+          ? { ...updatedNote, updatedAt: new Date().toISOString() }
+          : note
+      );
+    }
+
     setNotes(updatedNotes);
     setSelectedNote(updatedNote);
     setIsEditing(false);
@@ -113,10 +124,21 @@ export function NoteApp(): JSX.Element {
   const selectNote = (note: Note): void => {
     setSelectedNote(note);
     setIsEditing(false);
+    setIsNewNote(false);
   };
 
   const editNote = (): void => {
     setIsEditing(true);
+  };
+
+  const cancelEditing = (): void => {
+    if (isNewNote) {
+      // If canceling a new note, discard it
+      setSelectedNote(null);
+      setIsNewNote(false);
+    }
+    // For both cases, exit editing mode
+    setIsEditing(false);
   };
 
   return (
@@ -146,6 +168,7 @@ export function NoteApp(): JSX.Element {
               onSave={updateNote}
               onEdit={editNote}
               onDelete={deleteNote}
+              onCancel={cancelEditing}
             />
           ) : (
             <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
