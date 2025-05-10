@@ -21,11 +21,19 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { useProjects } from "@/contexts/project-context";
 import { ArrowUpDown, Filter, PlusCircle, Search } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { Issue, IssuePriority, IssueStatus } from "../../types/issue";
 
 export default function IssueTracker() {
+  const { getProjectStorageKey, activeProject, isLoading } = useProjects();
+
+  // Define base storage key for issues
+  const BASE_ISSUES_STORAGE_KEY = "tasky-issues-data";
+  const [storageKey, setStorageKey] = useState(BASE_ISSUES_STORAGE_KEY);
+  const [isLoaded, setIsLoaded] = useState(false);
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "TODO":
@@ -50,6 +58,52 @@ export default function IssueTracker() {
   const [priorityFilter, setPriorityFilter] = useState<string>("all");
   const [sortBy, setSortBy] = useState<string>("newest");
   const [dialogOpen, setDialogOpen] = useState(false);
+
+  // Update storage key when active project changes
+  useEffect(() => {
+    if (!isLoading) {
+      setStorageKey(getProjectStorageKey(BASE_ISSUES_STORAGE_KEY));
+    }
+  }, [getProjectStorageKey, activeProject, isLoading, BASE_ISSUES_STORAGE_KEY]);
+
+  // Load issues from localStorage when component mounts or project changes
+  useEffect(() => {
+    if (isLoading) return;
+
+    try {
+      const savedIssues = localStorage.getItem(storageKey);
+      if (savedIssues) {
+        const parsedIssues = JSON.parse(savedIssues);
+        setIssues(parsedIssues);
+      } else {
+        // Reset issues when switching to a project with no saved issues
+        setIssues([]);
+      }
+    } catch (error) {
+      console.error("Failed to load issues from localStorage:", error);
+    } finally {
+      setIsLoaded(true);
+    }
+  }, [storageKey, isLoading]);
+
+  // Memoized save function to avoid unnecessary re-renders
+  const saveIssuesToStorage = useCallback(
+    (issuesToSave: Issue[]): void => {
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(issuesToSave));
+      } catch (error) {
+        console.error("Failed to save issues to localStorage:", error);
+      }
+    },
+    [storageKey]
+  );
+
+  // Save issues to localStorage whenever they change, but only after initial load
+  useEffect(() => {
+    if (isLoaded && !isLoading) {
+      saveIssuesToStorage(issues);
+    }
+  }, [issues, saveIssuesToStorage, isLoaded, isLoading]);
 
   const [newIssue, setNewIssue] = useState<Partial<Issue>>({
     title: "",
@@ -120,7 +174,12 @@ export default function IssueTracker() {
       createdAt: new Date().toISOString(),
     };
 
-    setIssues([...issues, issueToAdd]);
+    const updatedIssues = [...issues, issueToAdd];
+    setIssues(updatedIssues);
+
+    // Explicitly save to localStorage to ensure creation is persisted
+    saveIssuesToStorage(updatedIssues);
+
     setNewIssue({
       title: "",
       description: "",
@@ -133,23 +192,33 @@ export default function IssueTracker() {
   };
 
   const handleStatusChange = (issueId: string, newStatus: IssueStatus) => {
-    setIssues(
-      issues.map((issue) =>
-        issue.id === issueId ? { ...issue, status: newStatus } : issue
-      )
+    const updatedIssues = issues.map((issue) =>
+      issue.id === issueId ? { ...issue, status: newStatus } : issue
     );
+
+    setIssues(updatedIssues);
+
+    // Explicitly save to localStorage to ensure status change is persisted
+    saveIssuesToStorage(updatedIssues);
   };
 
   const handleDeleteIssue = (issueId: string) => {
-    setIssues(issues.filter((issue) => issue.id !== issueId));
+    const updatedIssues = issues.filter((issue) => issue.id !== issueId);
+    setIssues(updatedIssues);
+
+    // Explicitly save to localStorage to ensure deletion is persisted
+    saveIssuesToStorage(updatedIssues);
   };
 
   const handleUpdateIssue = (updatedIssue: Issue) => {
-    setIssues(
-      issues.map((issue) =>
-        issue.id === updatedIssue.id ? updatedIssue : issue
-      )
+    const updatedIssues = issues.map((issue) =>
+      issue.id === updatedIssue.id ? updatedIssue : issue
     );
+
+    setIssues(updatedIssues);
+
+    // Explicitly save to localStorage to ensure update is persisted
+    saveIssuesToStorage(updatedIssues);
   };
 
   return (
