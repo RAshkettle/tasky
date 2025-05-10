@@ -26,6 +26,23 @@ import { useState } from "react";
 import type { Issue, IssuePriority, IssueStatus } from "../../types/issue";
 
 export default function IssueTracker() {
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "TODO":
+        return "bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-800/50";
+      case "IN-PROGRESS":
+        return "bg-yellow-100 text-yellow-800 hover:bg-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300 dark:hover:bg-yellow-800/50";
+      case "PARKED":
+        return "bg-purple-100 text-purple-800 hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:hover:bg-purple-800/50";
+      case "DONE":
+        return "bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-800/50";
+      case "INVESTIGATE":
+        return "bg-orange-100 text-orange-800 hover:bg-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:hover:bg-orange-800/50";
+      default:
+        return "bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-900/30 dark:text-gray-300 dark:hover:bg-gray-800/50";
+    }
+  };
+
   const [issues, setIssues] = useState<Issue[]>([
     {
       id: "1",
@@ -34,7 +51,6 @@ export default function IssueTracker() {
         "The login page breaks on screens smaller than 320px width. Inputs overflow and buttons are cut off.",
       status: "TODO",
       priority: "high",
-      assignee: "Sarah Chen",
       createdAt: "2025-05-01T10:30:00Z",
     },
     {
@@ -44,7 +60,6 @@ export default function IssueTracker() {
         "Implement dark mode toggle and corresponding styles across the application.",
       status: "IN-PROGRESS",
       priority: "medium",
-      assignee: "Alex Johnson",
       createdAt: "2025-05-03T14:15:00Z",
     },
     {
@@ -54,7 +69,6 @@ export default function IssueTracker() {
         "Users are able to make unlimited API calls, causing performance issues during peak hours.",
       status: "INVESTIGATE",
       priority: "critical",
-      assignee: "Unassigned",
       createdAt: "2025-05-05T09:45:00Z",
     },
     {
@@ -64,7 +78,6 @@ export default function IssueTracker() {
         "Create a user profile page where users can update their information and preferences.",
       status: "PARKED",
       priority: "low",
-      assignee: "Jamie Smith",
       createdAt: "2025-05-02T11:20:00Z",
     },
     {
@@ -74,7 +87,6 @@ export default function IssueTracker() {
         "Dashboard component doesn't clean up event listeners properly, causing memory leaks over time.",
       status: "DONE",
       priority: "high",
-      assignee: "Robin Taylor",
       createdAt: "2025-04-28T16:00:00Z",
     },
   ]);
@@ -89,7 +101,6 @@ export default function IssueTracker() {
     description: "",
     status: "INVESTIGATE",
     priority: "medium",
-    assignee: "",
   });
 
   // Filter and sort issues
@@ -146,7 +157,6 @@ export default function IssueTracker() {
       description: newIssue.description || "",
       status: (newIssue.status as IssueStatus) || "INVESTIGATE",
       priority: (newIssue.priority as IssuePriority) || "medium",
-      assignee: newIssue.assignee || "Unassigned",
       createdAt: new Date().toISOString(),
     };
 
@@ -156,7 +166,6 @@ export default function IssueTracker() {
       description: "",
       status: "INVESTIGATE",
       priority: "medium",
-      assignee: "",
     });
   };
 
@@ -220,15 +229,45 @@ export default function IssueTracker() {
                       setNewIssue({ ...newIssue, status: value as IssueStatus })
                     }
                   >
-                    <SelectTrigger id="status">
+                    <SelectTrigger
+                      id="status"
+                      className={getStatusColor(
+                        newIssue.status || "INVESTIGATE"
+                      )}
+                    >
                       <SelectValue placeholder="Select status" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="INVESTIGATE">Investigate</SelectItem>
-                      <SelectItem value="TODO">To Do</SelectItem>
-                      <SelectItem value="IN-PROGRESS">In Progress</SelectItem>
-                      <SelectItem value="PARKED">Parked</SelectItem>
-                      <SelectItem value="DONE">Done</SelectItem>
+                      <SelectItem
+                        value="INVESTIGATE"
+                        className="bg-orange-100 text-orange-800 hover:bg-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:hover:bg-orange-800/50"
+                      >
+                        Investigate
+                      </SelectItem>
+                      <SelectItem
+                        value="TODO"
+                        className="bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-800/50"
+                      >
+                        To Do
+                      </SelectItem>
+                      <SelectItem
+                        value="IN-PROGRESS"
+                        className="bg-yellow-100 text-yellow-800 hover:bg-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300 dark:hover:bg-yellow-800/50"
+                      >
+                        In Progress
+                      </SelectItem>
+                      <SelectItem
+                        value="PARKED"
+                        className="bg-purple-100 text-purple-800 hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:hover:bg-purple-800/50"
+                      >
+                        Parked
+                      </SelectItem>
+                      <SelectItem
+                        value="DONE"
+                        className="bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-800/50"
+                      >
+                        Done
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -254,17 +293,6 @@ export default function IssueTracker() {
                     </SelectContent>
                   </Select>
                 </div>
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="assignee">Assignee</Label>
-                <Input
-                  id="assignee"
-                  placeholder="Assignee name"
-                  value={newIssue.assignee}
-                  onChange={(e) =>
-                    setNewIssue({ ...newIssue, assignee: e.target.value })
-                  }
-                />
               </div>
             </div>
             <DialogFooter>
@@ -294,16 +322,45 @@ export default function IssueTracker() {
             <div className="flex items-center gap-2">
               <Filter className="h-4 w-4 text-muted-foreground" />
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-[130px]">
+                <SelectTrigger
+                  className={`w-[130px] ${
+                    statusFilter !== "all" ? getStatusColor(statusFilter) : ""
+                  }`}
+                >
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Statuses</SelectItem>
-                  <SelectItem value="INVESTIGATE">Investigate</SelectItem>
-                  <SelectItem value="TODO">To Do</SelectItem>
-                  <SelectItem value="IN-PROGRESS">In Progress</SelectItem>
-                  <SelectItem value="PARKED">Parked</SelectItem>
-                  <SelectItem value="DONE">Done</SelectItem>
+                  <SelectItem
+                    value="INVESTIGATE"
+                    className="bg-orange-100 text-orange-800 hover:bg-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:hover:bg-orange-800/50"
+                  >
+                    Investigate
+                  </SelectItem>
+                  <SelectItem
+                    value="TODO"
+                    className="bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-800/50"
+                  >
+                    To Do
+                  </SelectItem>
+                  <SelectItem
+                    value="IN-PROGRESS"
+                    className="bg-yellow-100 text-yellow-800 hover:bg-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300 dark:hover:bg-yellow-800/50"
+                  >
+                    In Progress
+                  </SelectItem>
+                  <SelectItem
+                    value="PARKED"
+                    className="bg-purple-100 text-purple-800 hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:hover:bg-purple-800/50"
+                  >
+                    Parked
+                  </SelectItem>
+                  <SelectItem
+                    value="DONE"
+                    className="bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-800/50"
+                  >
+                    Done
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>

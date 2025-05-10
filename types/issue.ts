@@ -12,6 +12,5 @@ export interface Issue {
   description: string;
   status: IssueStatus;
   priority: IssuePriority;
-  assignee: string;
   createdAt: string;
 }
