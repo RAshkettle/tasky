@@ -1,15 +1,7 @@
 "use client";
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import ProjectDeleteConfirmationDialog from "@/components/projct-delete-dialog";
+import ProjectEditDialog from "@/components/project-edit-dialog";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -32,7 +24,6 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import generateRandomName from "./project-name";
-import ProjectEditDialog from "@/components/project-edit-dialog";
 
 export default function ProjectSelector() {
   const {
@@ -341,30 +332,11 @@ export default function ProjectSelector() {
       </div>
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog
-        open={!!projectToDelete}
-        onOpenChange={() => setProjectToDelete(null)}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Project</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete the project{" "}
-              <span className="font-medium">{projectToDelete?.name}</span>? This
-              action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => handleDeleteProject(projectToDelete!.id)}
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
+      <ProjectDeleteConfirmationDialog
+        projectToDelete={projectToDelete}
+        setProjectToDelete={setProjectToDelete}
+        handleDeleteProject={handleDeleteProject}
+      />
       {/* Edit Project Dialog */}
       <ProjectEditDialog
         projectToEdit={projectToEdit}
