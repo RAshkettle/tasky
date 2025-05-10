@@ -1,5 +1,6 @@
 "use client";
 
+import ExistingProjectList from "@/components/existing-project-list";
 import ProjectDeleteConfirmationDialog from "@/components/projct-delete-dialog";
 import ProjectEditDialog from "@/components/project-edit-dialog";
 import { Button } from "@/components/ui/button";
@@ -15,13 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Project, useProjects } from "@/contexts/project-context";
 import { useToast } from "@/hooks/use-toast";
 import { generateUUID } from "@/lib/utils";
-import {
-  CheckCircle,
-  PencilIcon,
-  PlusCircle,
-  RefreshCw,
-  Trash2,
-} from "lucide-react";
+import { PlusCircle, RefreshCw } from "lucide-react";
 import { useEffect, useState } from "react";
 import generateRandomName from "./project-name";
 
@@ -189,85 +184,13 @@ export default function ProjectSelector() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Existing Projects Section */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Existing Projects</CardTitle>
-            <CardDescription>Select a project to work with</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {projects.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                No projects yet. Create your first project!
-              </div>
-            ) : (
-              <div className="grid gap-3 max-h-[420px] overflow-y-auto pr-1 projects-container">
-                {projects.map((project) => (
-                  <Card
-                    key={project.id}
-                    className={`cursor-pointer hover:bg-muted/50 transition-colors ${
-                      activeProject?.id === project.id
-                        ? "border-primary bg-primary/10"
-                        : ""
-                    }`}
-                  >
-                    <CardContent
-                      className="p-4 flex items-center justify-between"
-                      onClick={() => selectProject(project)}
-                    >
-                      <div>
-                        <div className="font-medium">{project.name}</div>
-                        {project.description && (
-                          <div className="text-sm text-slate-600 dark:text-slate-300 mt-1 line-clamp-2">
-                            {project.description}
-                          </div>
-                        )}
-                        <div className="text-xs text-muted-foreground mt-1">
-                          Created{" "}
-                          {new Date(project.createdAt).toLocaleDateString()}
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        {activeProject?.id === project.id ? (
-                          <>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={(e) => handleEditClick(e, project)}
-                              title="Edit project"
-                            >
-                              <PencilIcon className="h-5 w-5 text-muted-foreground" />
-                            </Button>
-                            <CheckCircle className="h-5 w-5 text-primary" />
-                          </>
-                        ) : (
-                          <>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={(e) => handleEditClick(e, project)}
-                              title="Edit project"
-                            >
-                              <PencilIcon className="h-5 w-5 text-muted-foreground" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={(e) => handleDeleteClick(e, project)}
-                              title="Delete project"
-                            >
-                              <Trash2 className="h-5 w-5 text-destructive" />
-                            </Button>
-                          </>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
+        <ExistingProjectList
+          projects={projects}
+          activeProject={activeProject}
+          selectProject={selectProject}
+          handleEditClick={handleEditClick}
+          handleDeleteClick={handleDeleteClick}
+        />
         {/* Create New Project Section */}
         <Card>
           <CardHeader>
