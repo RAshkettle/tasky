@@ -50,11 +50,11 @@ export default function Swimlane({
   const getLaneColor = (lane: Lane): string => {
     switch (lane) {
       case "TODO":
-        return "bg-amber-50 border-amber-200 dark:bg-amber-950/30 dark:border-amber-900";
+        return "bg-purple-50 border-purple-100 dark:bg-purple-950/20 dark:border-purple-800";
       case "IN-PROGRESS":
         return "bg-blue-50 border-blue-200 dark:bg-blue-950/30 dark:border-blue-900";
       case "PARKED":
-        return "bg-purple-50 border-purple-200 dark:bg-purple-950/30 dark:border-purple-900";
+        return "bg-rose-50 border-rose-300 dark:bg-rose-950/40 dark:border-rose-900";
       case "DONE":
         return "bg-green-50 border-green-200 dark:bg-green-950/30 dark:border-green-900";
       default:

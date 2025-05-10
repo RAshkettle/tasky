@@ -98,11 +98,11 @@
 
   /* TODO lane scrollbar */
   .todo-lane .overflow-y-auto::-webkit-scrollbar-thumb {
-    @apply bg-amber-300 dark:bg-amber-700 border-2 border-transparent bg-clip-padding;
+    @apply bg-purple-300 dark:bg-purple-600 border-2 border-transparent bg-clip-padding;
   }
 
   .todo-lane .overflow-y-auto::-webkit-scrollbar-thumb:hover {
-    @apply bg-amber-400 dark:bg-amber-600;
+    @apply bg-purple-400 dark:bg-purple-500;
   }
 
   /* IN-PROGRESS lane scrollbar */
@@ -116,11 +116,11 @@
 
   /* PARKED lane scrollbar */
   .parked-lane .overflow-y-auto::-webkit-scrollbar-thumb {
-    @apply bg-purple-300 dark:bg-purple-700 border-2 border-transparent bg-clip-padding;
+    @apply bg-rose-400 dark:bg-rose-800 border-2 border-transparent bg-clip-padding;
   }
 
   .parked-lane .overflow-y-auto::-webkit-scrollbar-thumb:hover {
-    @apply bg-purple-400 dark:bg-purple-600;
+    @apply bg-rose-500 dark:bg-rose-700;
   }
 
   /* DONE lane scrollbar */
