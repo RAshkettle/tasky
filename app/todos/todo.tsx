@@ -172,7 +172,7 @@ const Todo = (props: Props) => {
       )}
 
       {/* Footer with creation date */}
-      <div className="text-xs text-purple-950/60 px-3 pb-2 text-right italic">
+      <div className="text-xs text-purple-950/90 px-3 pb-2 text-right font-semibold">
         Created: {new Date(reminder.createdAt).toLocaleString()}
       </div>
     </div>
