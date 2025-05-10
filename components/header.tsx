@@ -61,6 +61,9 @@ export default function Header() {
           <Link href="/notes" className={getLinkClass("/notes")}>
             Notes
           </Link>
+          <Link href="/issues" className={getLinkClass("/issues")}>
+            Issues
+          </Link>
           <Link href="/progress" className={getLinkClass("/progress")}>
             Progress
           </Link>
@@ -107,6 +110,13 @@ export default function Header() {
                   onClick={() => setMenuOpen(false)}
                 >
                   Notes
+                </Link>
+                <Link
+                  href="/issues"
+                  className={getMobileLinkClass("/issues")}
+                  onClick={() => setMenuOpen(false)}
+                >
+                  Issues
                 </Link>
                 <Link
                   href="/progress"
