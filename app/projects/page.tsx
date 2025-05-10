@@ -208,7 +208,7 @@ export default function ProjectSelector() {
                 No projects yet. Create your first project!
               </div>
             ) : (
-              <div className="grid gap-3">
+              <div className="grid gap-3 max-h-[420px] overflow-y-auto pr-1 projects-container">
                 {projects.map((project) => (
                   <Card
                     key={project.id}
@@ -303,11 +303,22 @@ export default function ProjectSelector() {
               </div>
 
               <div className="space-y-1">
-                <Input
-                  placeholder="Project description (optional)"
-                  value={newProjectDescription}
-                  onChange={(e) => setNewProjectDescription(e.target.value)}
-                />
+                <div className="relative">
+                  <Input
+                    placeholder="Project description (optional)"
+                    value={newProjectDescription}
+                    onChange={(e) => {
+                      // Limit description to 50 characters
+                      if (e.target.value.length <= 50) {
+                        setNewProjectDescription(e.target.value);
+                      }
+                    }}
+                    maxLength={50}
+                  />
+                  <div className="absolute right-2 bottom-1 text-xs text-muted-foreground">
+                    {newProjectDescription.length}/50
+                  </div>
+                </div>
               </div>
 
               <div className="text-sm text-muted-foreground">
@@ -367,12 +378,23 @@ export default function ProjectSelector() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="py-4">
-            <textarea
-              className="w-full min-h-[100px] p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-              placeholder="Project description"
-              value={editedDescription}
-              onChange={(e) => setEditedDescription(e.target.value)}
-            />
+            <div className="relative">
+              <textarea
+                className="w-full min-h-[100px] p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                placeholder="Project description"
+                value={editedDescription}
+                onChange={(e) => {
+                  // Limit description to 50 characters
+                  if (e.target.value.length <= 50) {
+                    setEditedDescription(e.target.value);
+                  }
+                }}
+                maxLength={50}
+              />
+              <div className="absolute right-3 bottom-3 text-xs text-muted-foreground">
+                {editedDescription.length}/50
+              </div>
+            </div>
           </div>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>

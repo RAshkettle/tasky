@@ -152,4 +152,21 @@
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background-color: var(--scrollbar-hover-color, #7e22ce);
   }
+
+  /* Projects container scrollbar */
+  .projects-container::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .projects-container::-webkit-scrollbar-track {
+    @apply bg-transparent rounded-md;
+  }
+
+  .projects-container::-webkit-scrollbar-thumb {
+    @apply bg-primary/40 rounded-md border-2 border-transparent bg-clip-padding transition-colors;
+  }
+
+  .projects-container::-webkit-scrollbar-thumb:hover {
+    @apply bg-primary/70;
+  }
 }
