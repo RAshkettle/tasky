@@ -235,7 +235,11 @@ export default function ProjectSelector() {
             </div>
           </CardContent>
           <CardFooter>
-            <Button className="w-full" onClick={createProject}>
+            <Button
+              className="w-full"
+              onClick={createProject}
+              disabled={!newProjectName?.trim()}
+            >
               <PlusCircle className="mr-2 h-4 w-4" /> Create Project
             </Button>
           </CardFooter>
