@@ -11,6 +11,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -26,25 +28,30 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
 import { formatDistanceToNow } from "date-fns";
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
-import type { Issue, IssueStatus } from "../types/issue";
+import type { Issue, IssuePriority, IssueStatus } from "../types/issue";
 
 interface IssueListProps {
   issues: Issue[];
   onStatusChange: (issueId: string, newStatus: IssueStatus) => void;
   onDelete: (issueId: string) => void;
+  onUpdate: (updatedIssue: Issue) => void;
 }
 
 export default function IssueList({
   issues,
   onStatusChange,
   onDelete,
+  onUpdate,
 }: IssueListProps) {
   const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null);
+  const [editingIssue, setEditingIssue] = useState<Issue | null>(null);
   const [issueToDelete, setIssueToDelete] = useState<Issue | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -109,65 +116,166 @@ export default function IssueList({
                   className="cursor-pointer hover:bg-muted/50"
                 >
                   <TableCell className="font-medium">
-                    <Dialog>
+                    <Dialog
+                      open={editDialogOpen}
+                      onOpenChange={(open) => {
+                        setEditDialogOpen(open);
+                        if (open) {
+                          setEditingIssue({ ...issue });
+                        } else {
+                          setEditingIssue(null);
+                        }
+                      }}
+                    >
                       <DialogTrigger asChild>
                         <button
                           className="text-left hover:underline"
-                          onClick={() => setSelectedIssue(issue)}
+                          onClick={() => {
+                            setSelectedIssue(issue);
+                            setEditDialogOpen(true);
+                          }}
                         >
                           {issue.title}
                         </button>
                       </DialogTrigger>
                       <DialogContent className="sm:max-w-[600px]">
                         <DialogHeader>
-                          <DialogTitle>{issue.title}</DialogTitle>
+                          <DialogTitle>Edit Issue</DialogTitle>
                           <DialogDescription>
                             Issue #{issue.id} • Created{" "}
                             {formatDistanceToNow(new Date(issue.createdAt))} ago
                           </DialogDescription>
                         </DialogHeader>
-                        <div className="grid gap-4 py-4">
-                          <div className="grid grid-cols-2 gap-4">
-                            <div>
-                              <h4 className="text-sm font-medium mb-1">
-                                Status
-                              </h4>
-                              <Badge
-                                className={`${getStatusColor(
-                                  issue.status
-                                )} capitalize`}
-                              >
-                                {issue.status === "IN-PROGRESS"
-                                  ? "In Progress"
-                                  : issue.status === "TODO"
-                                  ? "To Do"
-                                  : issue.status === "INVESTIGATE"
-                                  ? "Investigate"
-                                  : issue.status}
-                              </Badge>
+                        {editingIssue && (
+                          <div className="grid gap-4 py-4">
+                            <div className="grid gap-2">
+                              <Label htmlFor="title">Title</Label>
+                              <Input
+                                id="title"
+                                value={editingIssue.title}
+                                onChange={(e) =>
+                                  setEditingIssue({
+                                    ...editingIssue,
+                                    title: e.target.value,
+                                  })
+                                }
+                              />
                             </div>
-                            <div>
-                              <h4 className="text-sm font-medium mb-1">
-                                Priority
-                              </h4>
-                              <Badge
-                                className={`${getPriorityColor(
-                                  issue.priority
-                                )} capitalize cursor-default`}
-                              >
-                                {issue.priority}
-                              </Badge>
+
+                            <div className="grid grid-cols-2 gap-4">
+                              <div className="grid gap-2">
+                                <Label htmlFor="status">Status</Label>
+                                <Select
+                                  value={editingIssue.status}
+                                  onValueChange={(value) =>
+                                    setEditingIssue({
+                                      ...editingIssue,
+                                      status: value as IssueStatus,
+                                    })
+                                  }
+                                >
+                                  <SelectTrigger
+                                    id="status"
+                                    className={getStatusColor(
+                                      editingIssue.status
+                                    )}
+                                  >
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem
+                                      value="INVESTIGATE"
+                                      className="bg-orange-100 text-orange-800 hover:bg-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:hover:bg-orange-800/50"
+                                    >
+                                      Investigate
+                                    </SelectItem>
+                                    <SelectItem
+                                      value="TODO"
+                                      className="bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-800/50"
+                                    >
+                                      To Do
+                                    </SelectItem>
+                                    <SelectItem
+                                      value="IN-PROGRESS"
+                                      className="bg-yellow-100 text-yellow-800 hover:bg-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300 dark:hover:bg-yellow-800/50"
+                                    >
+                                      In Progress
+                                    </SelectItem>
+                                    <SelectItem
+                                      value="PARKED"
+                                      className="bg-purple-100 text-purple-800 hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:hover:bg-purple-800/50"
+                                    >
+                                      Parked
+                                    </SelectItem>
+                                    <SelectItem
+                                      value="DONE"
+                                      className="bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-800/50"
+                                    >
+                                      Done
+                                    </SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div className="grid gap-2">
+                                <Label htmlFor="priority">Priority</Label>
+                                <Select
+                                  value={editingIssue.priority}
+                                  onValueChange={(value) =>
+                                    setEditingIssue({
+                                      ...editingIssue,
+                                      priority: value as IssuePriority,
+                                    })
+                                  }
+                                >
+                                  <SelectTrigger id="priority">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="critical">
+                                      Critical
+                                    </SelectItem>
+                                    <SelectItem value="high">High</SelectItem>
+                                    <SelectItem value="medium">
+                                      Medium
+                                    </SelectItem>
+                                    <SelectItem value="low">Low</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            </div>
+
+                            <div className="grid gap-2">
+                              <Label htmlFor="description">Description</Label>
+                              <Textarea
+                                id="description"
+                                className="min-h-[120px]"
+                                value={editingIssue.description}
+                                onChange={(e) =>
+                                  setEditingIssue({
+                                    ...editingIssue,
+                                    description: e.target.value,
+                                  })
+                                }
+                              />
                             </div>
                           </div>
-                          <div>
-                            <h4 className="text-sm font-medium mb-1">
-                              Description
-                            </h4>
-                            <p className="text-sm text-muted-foreground whitespace-pre-line">
-                              {issue.description}
-                            </p>
-                          </div>
-                        </div>
+                        )}
+                        <DialogFooter>
+                          <Button
+                            type="submit"
+                            onClick={() => {
+                              if (editingIssue) {
+                                onUpdate(editingIssue);
+                                setEditDialogOpen(false);
+                              }
+                            }}
+                            disabled={
+                              !editingIssue?.title || !editingIssue?.description
+                            }
+                          >
+                            Save Changes
+                          </Button>
+                        </DialogFooter>
                       </DialogContent>
                     </Dialog>
                   </TableCell>

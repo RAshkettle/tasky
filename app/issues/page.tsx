@@ -190,6 +190,14 @@ export default function IssueTracker() {
     setIssues(issues.filter((issue) => issue.id !== issueId));
   };
 
+  const handleUpdateIssue = (updatedIssue: Issue) => {
+    setIssues(
+      issues.map((issue) =>
+        issue.id === updatedIssue.id ? updatedIssue : issue
+      )
+    );
+  };
+
   return (
     <main className="container mx-auto py-6 px-4 max-w-7xl">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
@@ -421,6 +429,7 @@ export default function IssueTracker() {
           issues={filteredIssues}
           onStatusChange={handleStatusChange}
           onDelete={handleDeleteIssue}
+          onUpdate={handleUpdateIssue}
         />
       </div>
     </main>
