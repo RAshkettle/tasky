@@ -143,9 +143,9 @@ export function NoteApp(): JSX.Element {
   };
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-1 border rounded-lg p-4 h-[440px] flex flex-col">
+    <div className="container mx-auto py-4 px-4 h-[calc(100vh-5rem)]">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-full">
+        <div className="md:col-span-1 border rounded-lg p-4 flex flex-col h-full">
           <div className="flex justify-between items-center mb-4 shrink-0">
             <h1 className="text-2xl font-bold">Notes</h1>
             <Button onClick={createNewNote} size="sm">
@@ -153,7 +153,7 @@ export function NoteApp(): JSX.Element {
               New
             </Button>
           </div>
-          <div className="overflow-y-auto overflow-x-hidden notes-container">
+          <div className="overflow-y-auto overflow-x-hidden notes-container flex-grow">
             <NoteList
               notes={notes}
               selectedNoteId={selectedNote?.id}
@@ -161,8 +161,8 @@ export function NoteApp(): JSX.Element {
             />
           </div>
         </div>
-        <div className="md:col-span-2 border rounded-lg p-4 h-[440px] flex flex-col">
-          <div className="overflow-y-auto overflow-x-hidden notes-container">
+        <div className="md:col-span-2 border rounded-lg p-4 flex flex-col h-full">
+          <div className="overflow-y-auto overflow-x-hidden notes-container flex-grow">
             {selectedNote ? (
               <NoteEditor
                 note={selectedNote}
@@ -175,10 +175,6 @@ export function NoteApp(): JSX.Element {
             ) : (
               <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
                 <p className="mb-4">Select a note or create a new one</p>
-                <Button onClick={createNewNote} variant="outline">
-                  <PlusCircle className="h-4 w-4 mr-2" />
-                  Create your first note
-                </Button>
               </div>
             )}
           </div>
