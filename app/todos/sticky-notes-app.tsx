@@ -4,17 +4,10 @@ import type React from "react";
 
 import { Button } from "@/components/ui/button";
 import { useProjects } from "@/contexts/project-context";
-import { Plus, X } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-
-type Note = {
-  id: string;
-  text: string;
-  left: number;
-  top: number;
-  color: string;
-  updatedAt?: number;
-};
+import { Reminder } from "./reminder";
+import Todo from "./todo";
 
 const BASE_STORAGE_KEY = "tasky-sticky-notes"; // Base key, will be prefixed with project name
 
@@ -26,16 +19,16 @@ const isStorageAvailable = (() => {
     localStorage.removeItem(testKey);
     return true;
   } catch (e) {
-    console.warn("localStorage is not available. Notes will not be saved.");
+    console.warn("localStorage is not available. Reminders will not be saved.");
     return false;
   }
 })();
 
 export default function StickyNotesApp() {
   const { getProjectStorageKey, activeProject, isLoading } = useProjects();
-  const [notes, setNotes] = useState<Note[]>([]);
-  const [activeNote, setActiveNote] = useState<string | null>(null);
-  const [draggedNote, setDraggedNote] = useState<string | null>(null);
+  const [reminders, setReminders] = useState<Reminder[]>([]);
+  const [activeReminder, setActiveReminder] = useState<string | null>(null);
+  const [draggedReminder, setDraggedReminder] = useState<string | null>(null);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [storageKey, setStorageKey] = useState(BASE_STORAGE_KEY);
 
@@ -49,9 +42,9 @@ export default function StickyNotesApp() {
     height: typeof window !== "undefined" ? window.innerHeight : 0,
   });
 
-  // Function to ensure notes are within the visible area
-  const ensureNotesInViewport = useCallback(() => {
-    if (notes.length === 0) return;
+  // Function to ensure reminders are within the visible area
+  const ensureRemindersInViewport = useCallback(() => {
+    if (reminders.length === 0) return;
 
     // Calculate the maximum usable area (with margins)
     const maxX = windowSize.width - 280; // 280 = 264 (card width) + margins
@@ -59,38 +52,38 @@ export default function StickyNotesApp() {
     const minX = 10;
     const minY = 60; // Allow space for the header
 
-    let notesNeedRepositioning = false;
+    let remindersNeedRepositioning = false;
 
-    const repositionedNotes = notes.map((note) => {
-      // If the note is out of bounds, reposition it
+    const repositionedReminders = reminders.map((reminder) => {
+      // If the reminder is out of bounds, reposition it
       if (
-        note.left < minX ||
-        note.left > maxX ||
-        note.top < minY ||
-        note.top > maxY
+        reminder.left < minX ||
+        reminder.left > maxX ||
+        reminder.top < minY ||
+        reminder.top > maxY
       ) {
-        notesNeedRepositioning = true;
+        remindersNeedRepositioning = true;
 
         return {
-          ...note,
+          ...reminder,
           left:
-            note.left < minX || note.left > maxX
-              ? Math.max(minX, Math.min(note.left, maxX))
-              : note.left,
+            reminder.left < minX || reminder.left > maxX
+              ? Math.max(minX, Math.min(reminder.left, maxX))
+              : reminder.left,
           top:
-            note.top < minY || note.top > maxY
-              ? Math.max(minY, Math.min(note.top, maxY))
-              : note.top,
+            reminder.top < minY || reminder.top > maxY
+              ? Math.max(minY, Math.min(reminder.top, maxY))
+              : reminder.top,
         };
       }
-      return note;
+      return reminder;
     });
 
-    // Only update if notes needed repositioning
-    if (notesNeedRepositioning) {
-      setNotes(repositionedNotes);
+    // Only update if reminders needed repositioning
+    if (remindersNeedRepositioning) {
+      setReminders(repositionedReminders);
     }
-  }, [notes, windowSize]);
+  }, [reminders, windowSize]);
 
   // Track window resize events
   useEffect(() => {
@@ -108,17 +101,17 @@ export default function StickyNotesApp() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Apply viewport constraints when window size changes or notes change
+  // Apply viewport constraints when window size changes or reminders change
   useEffect(() => {
-    ensureNotesInViewport();
-  }, [windowSize, ensureNotesInViewport]);
+    ensureRemindersInViewport();
+  }, [windowSize, ensureRemindersInViewport]);
 
-  // Additional check after notes are loaded
+  // Additional check after reminders are loaded
   useEffect(() => {
-    if (!isLoading && notes.length > 0) {
-      ensureNotesInViewport();
+    if (!isLoading && reminders.length > 0) {
+      ensureRemindersInViewport();
     }
-  }, [isLoading, notes.length, ensureNotesInViewport]);
+  }, [isLoading, reminders.length, ensureRemindersInViewport]);
 
   // Update storage key when active project changes
   useEffect(() => {
@@ -127,46 +120,46 @@ export default function StickyNotesApp() {
     }
   }, [getProjectStorageKey, activeProject, isLoading]);
 
-  // Load notes from localStorage on initial render or when active project changes
+  // Load reminders from localStorage on initial render or when active project changes
   useEffect(() => {
     if (!isStorageAvailable || isLoading) return;
 
     try {
-      const savedNotes = localStorage.getItem(storageKey);
-      if (savedNotes) {
-        const parsedNotes = JSON.parse(savedNotes);
-        setNotes(parsedNotes);
+      const savedReminders = localStorage.getItem(storageKey);
+      if (savedReminders) {
+        const parsedReminders = JSON.parse(savedReminders);
+        setReminders(parsedReminders);
       } else {
-        // If no notes found for this project, start with empty array
-        setNotes([]);
+        // If no reminders found for this project, start with empty array
+        setReminders([]);
       }
     } catch (e) {
-      console.error("Failed to load notes from localStorage:", e);
+      console.error("Failed to load reminders from localStorage:", e);
     }
   }, [storageKey, isLoading]);
 
   // Debounced save to localStorage
-  const saveNotesToStorage = useCallback(() => {
+  const saveRemindersToStorage = useCallback(() => {
     if (!isStorageAvailable) return;
 
     try {
-      localStorage.setItem(storageKey, JSON.stringify(notes));
+      localStorage.setItem(storageKey, JSON.stringify(reminders));
     } catch (e) {
-      console.error("Failed to save notes to localStorage:", e);
+      console.error("Failed to save reminders to localStorage:", e);
     }
-  }, [notes, storageKey]);
+  }, [reminders, storageKey]);
 
   // Use a debounced effect for saving
   useEffect(() => {
-    // Skip during loading or if no notes
+    // Skip during loading or if no reminders
     if (isLoading) return;
 
     const timeoutId = setTimeout(() => {
-      saveNotesToStorage();
+      saveRemindersToStorage();
     }, 500); // 500ms debounce
 
     return () => clearTimeout(timeoutId);
-  }, [notes, saveNotesToStorage, isLoading]);
+  }, [reminders, saveRemindersToStorage, isLoading]);
 
   const colors = [
     "bg-yellow-200/50 border-yellow-400 from-yellow-300/70 to-yellow-200/70",
@@ -176,14 +169,14 @@ export default function StickyNotesApp() {
     "bg-purple-200/50 border-purple-400 from-purple-300/70 to-purple-200/70",
   ];
 
-  const addNote = () => {
-    // Ensure the new note is placed within the visible area
+  const addReminder = () => {
+    // Ensure the new reminder is placed within the visible area
     const maxX = windowSize.width - 280;
     const maxY = windowSize.height - 180;
     const minX = 10;
     const minY = 60;
 
-    const newNote: Note = {
+    const newReminder: Reminder = {
       id: Date.now().toString(),
       text: "",
       left: Math.min(
@@ -197,23 +190,25 @@ export default function StickyNotesApp() {
       color: colors[Math.floor(Math.random() * colors.length)],
       updatedAt: Date.now(),
     };
-    setNotes([...notes, newNote]);
-    setActiveNote(newNote.id);
+    setReminders([...reminders, newReminder]);
+    setActiveReminder(newReminder.id);
   };
 
-  const updateNoteText = (id: string, text: string) => {
-    setNotes(
-      notes.map((note) =>
-        note.id === id ? { ...note, text, updatedAt: Date.now() } : note
+  const updateReminderText = (id: string, text: string) => {
+    setReminders(
+      reminders.map((reminder) =>
+        reminder.id === id
+          ? { ...reminder, text, updatedAt: Date.now() }
+          : reminder
       )
     );
   };
 
-  const deleteNote = (id: string) => {
-    setNotes(notes.filter((note) => note.id !== id));
+  const deleteReminder = (id: string) => {
+    setReminders(reminders.filter((reminder) => reminder.id !== id));
   };
 
-  const handleMouseDown = (e: React.MouseEvent, noteId: string) => {
+  const handleMouseDown = (e: React.MouseEvent, reminderId: string) => {
     // Only allow dragging from the header
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
     setDragOffset({
@@ -221,35 +216,35 @@ export default function StickyNotesApp() {
       y: e.clientY - rect.top,
     });
 
-    setDraggedNote(noteId);
+    setDraggedReminder(reminderId);
 
     // Prevent default to avoid text selection during drag
     e.preventDefault();
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!draggedNote) return;
+    if (!draggedReminder) return;
 
-    // Update the note position based on mouse position and initial offset
-    setNotes(
-      notes.map((note) => {
-        if (note.id === draggedNote) {
+    // Update the reminder position based on mouse position and initial offset
+    setReminders(
+      reminders.map((reminder) => {
+        if (reminder.id === draggedReminder) {
           return {
-            ...note,
+            ...reminder,
             left: e.clientX - dragOffset.x,
             top: e.clientY - dragOffset.y,
           };
         }
-        return note;
+        return reminder;
       })
     );
   };
 
   const handleMouseUp = () => {
-    setDraggedNote(null);
+    setDraggedReminder(null);
   };
 
-  const handleTouchStart = (e: React.TouchEvent, noteId: string) => {
+  const handleTouchStart = (e: React.TouchEvent, reminderId: string) => {
     // Store the current target element reference
     const targetElement = e.currentTarget;
 
@@ -268,7 +263,7 @@ export default function StickyNotesApp() {
               y: touch.clientY - rect.top,
             });
 
-            setDraggedNote(noteId);
+            setDraggedReminder(reminderId);
 
             // Provide haptic feedback if available
             if (navigator.vibrate) {
@@ -279,7 +274,7 @@ export default function StickyNotesApp() {
       } catch (error) {
         console.error("Error in touch handler:", error);
         // Clear any drag state to prevent unexpected behavior
-        setDraggedNote(null);
+        setDraggedReminder(null);
       }
     }, longPressDelay);
 
@@ -287,22 +282,22 @@ export default function StickyNotesApp() {
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (!draggedNote) return;
+    if (!draggedReminder) return;
 
     e.preventDefault(); // Prevent scrolling while dragging
     const touch = e.touches[0];
 
-    // Update the note position based on touch position and initial offset
-    setNotes(
-      notes.map((note) => {
-        if (note.id === draggedNote) {
+    // Update the reminder position based on touch position and initial offset
+    setReminders(
+      reminders.map((reminder) => {
+        if (reminder.id === draggedReminder) {
           return {
-            ...note,
+            ...reminder,
             left: touch.clientX - dragOffset.x,
             top: touch.clientY - dragOffset.y,
           };
         }
-        return note;
+        return reminder;
       })
     );
   };
@@ -314,29 +309,29 @@ export default function StickyNotesApp() {
       setLongPressTimer(null);
     }
 
-    setDraggedNote(null);
+    setDraggedReminder(null);
   };
 
   useEffect(() => {
     // Add global mouse event listeners for dragging
-    if (draggedNote) {
+    if (draggedReminder) {
       const handleGlobalMouseMove = (e: MouseEvent) => {
-        setNotes(
-          notes.map((note) => {
-            if (note.id === draggedNote) {
+        setReminders(
+          reminders.map((reminder) => {
+            if (reminder.id === draggedReminder) {
               return {
-                ...note,
+                ...reminder,
                 left: e.clientX - dragOffset.x,
                 top: e.clientY - dragOffset.y,
               };
             }
-            return note;
+            return reminder;
           })
         );
       };
 
       const handleGlobalMouseUp = () => {
-        setDraggedNote(null);
+        setDraggedReminder(null);
       };
 
       document.addEventListener("mousemove", handleGlobalMouseMove);
@@ -347,31 +342,31 @@ export default function StickyNotesApp() {
         document.removeEventListener("mouseup", handleGlobalMouseUp);
       };
     }
-  }, [draggedNote, dragOffset, notes]);
+  }, [draggedReminder, dragOffset, reminders]);
 
   useEffect(() => {
     // Add global touch event listeners for dragging
-    if (draggedNote) {
+    if (draggedReminder) {
       const handleGlobalTouchMove = (e: TouchEvent) => {
         if (!e.touches[0]) return;
 
         const touch = e.touches[0];
-        setNotes(
-          notes.map((note) => {
-            if (note.id === draggedNote) {
+        setReminders(
+          reminders.map((reminder) => {
+            if (reminder.id === draggedReminder) {
               return {
-                ...note,
+                ...reminder,
                 left: touch.clientX - dragOffset.x,
                 top: touch.clientY - dragOffset.y,
               };
             }
-            return note;
+            return reminder;
           })
         );
       };
 
       const handleGlobalTouchEnd = () => {
-        setDraggedNote(null);
+        setDraggedReminder(null);
       };
 
       document.addEventListener("touchmove", handleGlobalTouchMove, {
@@ -384,7 +379,7 @@ export default function StickyNotesApp() {
         document.removeEventListener("touchend", handleGlobalTouchEnd);
       };
     }
-  }, [draggedNote, dragOffset, notes]);
+  }, [draggedReminder, dragOffset, reminders]);
 
   useEffect(() => {
     return () => {
@@ -409,7 +404,6 @@ export default function StickyNotesApp() {
     >
       {/* Light mode background overlay */}
       <div className="absolute inset-0 bg-slate-200/95 dark:hidden" />
-
       {/* Stars effect - only visible in dark mode */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none dark:block hidden">
         {Array.from({ length: 100 }).map((_, i) => (
@@ -429,83 +423,27 @@ export default function StickyNotesApp() {
           />
         ))}
       </div>
-
       {/* Floating Add Button - always visible */}
       <Button
-        onClick={addNote}
+        onClick={addReminder}
         className="fixed bottom-6 right-6 rounded-full w-14 h-14 shadow-xl z-[100] bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-200 hover:scale-110 animate-in slide-in-from-bottom-6"
-        aria-label="Add new note"
+        aria-label="Add new reminder"
       >
         <Plus className="h-6 w-6" />
       </Button>
-
-      {notes.map((note) => {
-        const [colorClass, borderClass, gradientFrom, gradientTo] =
-          note.color.split(" ");
+      {reminders.map((reminder) => {
         return (
-          <div
-            key={note.id}
-            className={`absolute shadow-md rounded-md ${colorClass} border-2 ${borderClass} w-64 text-purple-950 overflow-hidden`}
-            style={{
-              left: `${note.left}px`,
-              top: `${note.top}px`,
-              zIndex:
-                draggedNote === note.id || activeNote === note.id ? 10 : 1,
-            }}
-            onClick={() => setActiveNote(note.id)}
-          >
-            {/* Grabbable header */}
-            <div
-              className={`h-7 w-full bg-gradient-to-r ${gradientFrom} ${gradientTo} flex items-center cursor-grab`}
-              onMouseDown={(e) => handleMouseDown(e, note.id)}
-              onTouchStart={(e) => handleTouchStart(e, note.id)}
-            >
-              <div className="w-full h-full px-2">
-                <div className="flex justify-between items-center h-full">
-                  <div className="flex space-x-1">
-                    {[...Array(3)].map((_, i) => (
-                      <div
-                        key={i}
-                        className="w-2 h-2 rounded-full bg-white/60"
-                      />
-                    ))}
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-5 w-5 rounded-full opacity-70 text-purple-950 hover:opacity-100 hover:bg-red-300"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      deleteNote(note.id);
-                    }}
-                  >
-                    <X className="h-3 w-3" />
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            {activeNote === note.id ? (
-              <div className="p-3">
-                <textarea
-                  className="w-full h-32 bg-transparent resize-none focus:outline-none text-purple-950"
-                  value={note.text}
-                  onChange={(e) => updateNoteText(note.id, e.target.value)}
-                  onBlur={() => setActiveNote(null)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Escape") {
-                      setActiveNote(null);
-                    }
-                  }}
-                  autoFocus
-                />
-              </div>
-            ) : (
-              <div className="whitespace-pre-wrap min-h-[8rem] break-words p-3 text-purple-950">
-                {note.text || "Click to edit"}
-              </div>
-            )}
-          </div>
+          <Todo
+            reminder={reminder}
+            draggedreminder={draggedReminder}
+            activereminder={activeReminder}
+            setActivereminder={setActiveReminder}
+            deletereminder={deleteReminder}
+            updateremindertext={updateReminderText}
+            handleMouseDown={handleMouseDown}
+            handleTouchStart={handleTouchStart}
+            key={reminder.id}
+          />
         );
       })}
     </div>
