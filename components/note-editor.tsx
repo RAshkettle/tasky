@@ -76,7 +76,7 @@ export function NoteEditor({
 
   if (isEditing) {
     return (
-      <div className="space-y-4 h-full">
+      <div className="space-y-4 h-full flex flex-col">
         <div className="flex justify-between items-center">
           <Input
             value={title}
@@ -101,12 +101,12 @@ export function NoteEditor({
           </div>
         </div>
 
-        <div className="mt-4 h-full">
+        <div className="mt-4 flex-grow">
           <Textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="Write your note here using Markdown..."
-            className="h-full resize-none"
+            className="h-full resize-none overflow-x-hidden w-full"
           />
         </div>
       </div>
@@ -114,7 +114,7 @@ export function NoteEditor({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 h-full flex flex-col">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">{note.title}</h2>
         <div className="flex space-x-2">
@@ -138,7 +138,7 @@ export function NoteEditor({
         {formatDistanceToNow(new Date(note.updatedAt), { addSuffix: true })}
       </div>
 
-      <div className="prose max-w-none dark:prose-invert overflow-y-auto">
+      <div className="prose max-w-none dark:prose-invert overflow-y-auto overflow-x-hidden flex-grow">
         {content ? (
           <ReactMarkdown rehypePlugins={[rehypeSanitize]}>
             {content}
