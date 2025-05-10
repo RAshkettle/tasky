@@ -23,7 +23,13 @@ import { Input } from "@/components/ui/input";
 import { Project, useProjects } from "@/contexts/project-context";
 import { useToast } from "@/hooks/use-toast";
 import { generateUUID } from "@/lib/utils";
-import { CheckCircle, PlusCircle, RefreshCw, Trash2 } from "lucide-react";
+import {
+  CheckCircle,
+  PencilIcon,
+  PlusCircle,
+  RefreshCw,
+  Trash2,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import generateRandomName from "./project-name";
 
@@ -37,7 +43,10 @@ export default function ProjectSelector() {
     isLoading,
   } = useProjects();
   const [newProjectName, setNewProjectName] = useState("");
+  const [newProjectDescription, setNewProjectDescription] = useState("");
   const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
+  const [projectToEdit, setProjectToEdit] = useState<Project | null>(null);
+  const [editedDescription, setEditedDescription] = useState("");
   const { toast } = useToast();
 
   useEffect(() => {
@@ -78,10 +87,12 @@ export default function ProjectSelector() {
       id: generateUUID(),
       name: newProjectName,
       createdAt: Date.now(),
+      description: newProjectDescription.trim() || undefined, // Only include if it has content
     };
 
     setProjects([...projects, newProject]);
     createNewProjectName();
+    setNewProjectDescription(""); // Clear the description field
 
     toast({
       title: "Success",
@@ -134,6 +145,44 @@ export default function ProjectSelector() {
     setProjectToDelete(project);
   };
 
+  // Handle editing project description
+  const handleEditProject = () => {
+    if (!projectToEdit) return;
+
+    // Update the project with the new description
+    const updatedProjects = projects.map((project) =>
+      project.id === projectToEdit.id
+        ? { ...project, description: editedDescription.trim() || undefined }
+        : project
+    );
+
+    setProjects(updatedProjects);
+
+    // If the edited project is the active project, update it too
+    if (activeProject?.id === projectToEdit.id) {
+      setActiveProject({
+        ...activeProject,
+        description: editedDescription.trim() || undefined,
+      });
+    }
+
+    toast({
+      title: "Project Updated",
+      description: "The project description has been updated",
+    });
+
+    // Reset the edit state
+    setProjectToEdit(null);
+    setEditedDescription("");
+  };
+
+  // Handle edit button click - open edit dialog
+  const handleEditClick = (e: React.MouseEvent, project: Project) => {
+    e.stopPropagation(); // Prevent card click/project selection
+    setProjectToEdit(project);
+    setEditedDescription(project.description || "");
+  };
+
   if (isLoading) {
     return (
       <div className="container mx-auto py-8 px-4 text-center">
@@ -175,23 +224,48 @@ export default function ProjectSelector() {
                     >
                       <div>
                         <div className="font-medium">{project.name}</div>
-                        <div className="text-sm text-muted-foreground">
+                        {project.description && (
+                          <div className="text-sm text-slate-600 dark:text-slate-300 mt-1 line-clamp-2">
+                            {project.description}
+                          </div>
+                        )}
+                        <div className="text-xs text-muted-foreground mt-1">
                           Created{" "}
                           {new Date(project.createdAt).toLocaleDateString()}
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">
                         {activeProject?.id === project.id ? (
-                          <CheckCircle className="h-5 w-5 text-primary" />
+                          <>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={(e) => handleEditClick(e, project)}
+                              title="Edit project"
+                            >
+                              <PencilIcon className="h-5 w-5 text-muted-foreground" />
+                            </Button>
+                            <CheckCircle className="h-5 w-5 text-primary" />
+                          </>
                         ) : (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={(e) => handleDeleteClick(e, project)}
-                            title="Delete project"
-                          >
-                            <Trash2 className="h-5 w-5 text-destructive" />
-                          </Button>
+                          <>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={(e) => handleEditClick(e, project)}
+                              title="Edit project"
+                            >
+                              <PencilIcon className="h-5 w-5 text-muted-foreground" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={(e) => handleDeleteClick(e, project)}
+                              title="Delete project"
+                            >
+                              <Trash2 className="h-5 w-5 text-destructive" />
+                            </Button>
+                          </>
                         )}
                       </div>
                     </CardContent>
@@ -226,6 +300,14 @@ export default function ProjectSelector() {
                 >
                   <RefreshCw className="h-4 w-4" />
                 </Button>
+              </div>
+
+              <div className="space-y-1">
+                <Input
+                  placeholder="Project description (optional)"
+                  value={newProjectDescription}
+                  onChange={(e) => setNewProjectDescription(e.target.value)}
+                />
               </div>
 
               <div className="text-sm text-muted-foreground">
@@ -266,6 +348,36 @@ export default function ProjectSelector() {
               onClick={() => handleDeleteProject(projectToDelete!.id)}
             >
               Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Edit Project Dialog */}
+      <AlertDialog
+        open={!!projectToEdit}
+        onOpenChange={() => setProjectToEdit(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Edit Project</AlertDialogTitle>
+            <AlertDialogDescription>
+              Update the description for project{" "}
+              <span className="font-medium">{projectToEdit?.name}</span>.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="py-4">
+            <textarea
+              className="w-full min-h-[100px] p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+              placeholder="Project description"
+              value={editedDescription}
+              onChange={(e) => setEditedDescription(e.target.value)}
+            />
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleEditProject}>
+              Save
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

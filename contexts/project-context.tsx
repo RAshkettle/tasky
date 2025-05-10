@@ -9,6 +9,7 @@ export interface Project {
   id: string;
   name: string;
   createdAt: number;
+  description?: string; // Optional project description
 }
 
 interface ProjectContextType {
