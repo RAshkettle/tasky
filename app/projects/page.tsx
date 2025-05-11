@@ -33,6 +33,19 @@ export default function ProjectSelector() {
       title: "Project Selected",
       description: `Now working with project: ${project.name}`,
     });
+
+    // Create some test data for this project to verify deletion works
+    if (process.env.NODE_ENV === "development") {
+      const testDataKey = `${project.name}:test-data-${Date.now()}`;
+      localStorage.setItem(
+        testDataKey,
+        JSON.stringify({
+          testValue:
+            "This is test data that should be deleted with the project",
+        })
+      );
+      console.log(`Created test data with key: ${testDataKey}`);
+    }
   };
 
   // Handle editing project description

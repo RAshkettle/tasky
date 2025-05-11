@@ -27,7 +27,8 @@ const ProjectDeleteConfirmationDialog = (props: Props) => {
     if (success) {
       toast({
         title: "Project Deleted",
-        description: "The project has been permanently deleted",
+        description:
+          "The project and all its data have been permanently deleted",
       });
       setProjectToDelete(null);
     } else {
@@ -50,7 +51,8 @@ const ProjectDeleteConfirmationDialog = (props: Props) => {
           <AlertDialogDescription>
             Are you sure you want to delete the project{" "}
             <span className="font-medium">{projectToDelete?.name}</span>? This
-            action cannot be undone.
+            will permanently delete the project and all associated data (notes,
+            tasks, issues, etc.). This action cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

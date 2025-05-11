@@ -100,11 +100,46 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
     }
   }, [projects, isLoading]);
 
-  // Delete a project by id
+  // Delete a project by id and clean up all associated data in localStorage
   const deleteProject = (projectId: string) => {
     // Cannot delete the active project
     if (activeProject?.id === projectId) {
       return false;
+    }
+
+    // Find the project to be deleted
+    const projectToDelete = projects.find(
+      (project) => project.id === projectId
+    );
+    if (projectToDelete) {
+      // Clear all localStorage data associated with this project
+      const projectPrefix = `${projectToDelete.name}:`;
+
+      // Get all keys in localStorage
+      try {
+        const keysToRemove = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          // If the key starts with the project's prefix, add it to our removal list
+          if (key && key.startsWith(projectPrefix)) {
+            keysToRemove.push(key);
+          }
+        }
+
+        // Remove all associated data
+        keysToRemove.forEach((key) => {
+          localStorage.removeItem(key);
+        });
+
+        console.log(
+          `Deleted ${keysToRemove.length} localStorage items for project: ${projectToDelete.name}`
+        );
+      } catch (error) {
+        console.error(
+          "Failed to clean up project data from localStorage:",
+          error
+        );
+      }
     }
 
     // Filter out the project with the matching id
