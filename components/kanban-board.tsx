@@ -25,7 +25,7 @@ export type Task = {
   id: string;
   title: string;
   description: string;
-  priority: "low" | "medium" | "high";
+  priority: "low" | "medium" | "high" | "critical";
   category: "art" | "code" | "design" | "audio" | "bugfix" | "other";
 };
 
@@ -331,13 +331,18 @@ export default function KanbanBoard(): JSX.Element {
                     onChange={(e) =>
                       setNewTask({
                         ...newTask,
-                        priority: e.target.value as "low" | "medium" | "high",
+                        priority: e.target.value as
+                          | "low"
+                          | "medium"
+                          | "high"
+                          | "critical",
                       })
                     }
                   >
-                    <option value="low">Low</option>
-                    <option value="medium">Medium</option>
+                    <option value="critical">Critical</option>
                     <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
                   </select>
                 </div>
                 <div className="grid gap-2">

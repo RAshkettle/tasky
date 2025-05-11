@@ -16,7 +16,15 @@ export function useKanbanIssueSync(
   const getIssueIdFromTaskId = (taskId: string): string | null => {
     // Task IDs from issues are prefixed with "issue-"
     if (taskId.startsWith("issue-")) {
-      return taskId.substring(6); // Remove the "issue-" prefix
+      // Handle the new format where the issue ID already includes "issue-" prefix
+      if (taskId.includes("-", 6)) {
+        // For IDs like "issue-issue-1234-abc", we want to return "issue-1234-abc"
+        // Or for IDs like "issue-1234-abc", we want to return "1234-abc"
+        return taskId.substring(6);
+      }
+
+      // For legacy format like "issue-123", return "123"
+      return taskId.substring(6);
     }
     return null;
   };
@@ -32,7 +40,11 @@ export function useKanbanIssueSync(
       const issueId = getIssueIdFromTaskId(taskId);
       if (!issueId) return;
 
-      const issue = issues.find((i) => i.id === issueId);
+      // Find the issue either by direct ID match or by constructed task ID
+      const issue = issues.find(
+        (i) => i.id === issueId || `issue-${i.id}` === taskId
+      );
+
       if (!issue) return;
 
       const newStatus = laneToStatus(newLane);
@@ -40,7 +52,7 @@ export function useKanbanIssueSync(
       // Only update if status has changed
       if (issue.status !== newStatus) {
         const updatedIssues = issues.map((i) =>
-          i.id === issueId ? { ...i, status: newStatus } : i
+          i.id === issue.id ? { ...i, status: newStatus } : i
         );
 
         setIssues(updatedIssues);
@@ -113,7 +125,16 @@ export function useKanbanIssueSync(
       currentTaskMap.forEach((currentLane, taskId) => {
         const previousLane = previousTaskMap.get(taskId);
         if (previousLane !== currentLane) {
-          handleKanbanTaskMove(taskId, currentLane);
+          const issueId = getIssueIdFromTaskId(taskId);
+
+          // Only update if we can determine the issue ID and the issue exists
+          if (
+            issueId &&
+            issues.some((i) => i.id === issueId || `issue-${i.id}` === taskId)
+          ) {
+            handleKanbanTaskMove(taskId, currentLane);
+          }
+
           hasChanges = true;
         }
       });

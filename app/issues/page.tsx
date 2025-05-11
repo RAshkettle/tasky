@@ -159,22 +159,39 @@ export default function IssueTracker() {
   );
 
   // Convert an issue to a kanban task
-  const issueToTask = (issue: Issue): Task => ({
-    id: `issue-${issue.id}`,
-    title: issue.title,
-    description: issue.description,
-    priority: issue.priority === "critical" ? "high" : issue.priority,
-    category: "other", // Default category
-  });
+  const issueToTask = (issue: Issue): Task => {
+    // Ensure the task ID is consistently derived from the issue ID but unique in Kanban context
+    // If issue ID already has proper format, keep it structured
+    const taskId = issue.id.startsWith("issue-")
+      ? issue.id
+      : `issue-${issue.id}`;
+
+    return {
+      id: taskId,
+      title: issue.title,
+      description: issue.description,
+      priority: issue.priority,
+      category: "other", // Default category
+    };
+  };
 
   // Find a task in Kanban lanes by issueId
   const findTaskByIssueId = useCallback(
     (issueId: string): { lane: Lane; task: Task; index: number } | null => {
+      // Build potential task ID formats
+      const possibleTaskIds = [
+        issueId.startsWith("issue-") ? issueId : `issue-${issueId}`,
+      ];
+
       for (const lane of Object.keys(kanbanStorageKeys) as Lane[]) {
         const tasks = loadKanbanLane(lane);
-        const index = tasks.findIndex((task) => task.id === `issue-${issueId}`);
-        if (index >= 0) {
-          return { lane, task: tasks[index], index };
+
+        // Try to find using any of the possible ID formats
+        for (const possibleId of possibleTaskIds) {
+          const index = tasks.findIndex((task) => task.id === possibleId);
+          if (index >= 0) {
+            return { lane, task: tasks[index], index };
+          }
         }
       }
       return null;
@@ -242,8 +259,13 @@ export default function IssueTracker() {
       return; // Don't create issue if title or description is empty
     }
 
+    // Generate a unique ID using timestamp and random string
+    const uniqueId = `issue-${Date.now()}-${Math.random()
+      .toString(36)
+      .substring(2, 7)}`;
+
     const issueToAdd: Issue = {
-      id: (issues.length + 1).toString(),
+      id: uniqueId,
       title: newIssue.title || "",
       description: newIssue.description || "",
       status: (newIssue.status as IssueStatus) || "INVESTIGATE",

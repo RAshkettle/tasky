@@ -265,6 +265,8 @@ export default function TaskCard({
 
   const getPriorityColor = (priority: string): string => {
     switch (priority) {
+      case "critical":
+        return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300";
       case "high":
         return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300";
       case "medium":
@@ -343,13 +345,15 @@ export default function TaskCard({
                             priority: e.target.value as
                               | "low"
                               | "medium"
-                              | "high",
+                              | "high"
+                              | "critical",
                           })
                         }
                       >
-                        <option value="low">Low</option>
-                        <option value="medium">Medium</option>
+                        <option value="critical">Critical</option>
                         <option value="high">High</option>
+                        <option value="medium">Medium</option>
+                        <option value="low">Low</option>
                       </select>
                     </div>
                     <div className="grid gap-2">
